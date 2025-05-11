@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning> {/* suppressHydrationWarning for theme class */}
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Script to set initial theme to prevent FOUC */}
         <script
