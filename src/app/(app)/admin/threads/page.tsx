@@ -1,35 +1,31 @@
+
 /**
  * @fileOverview Admin threads management page.
  * 
  * This page allows administrators to view, search, and manage forum threads.
  * It includes functionality for filtering threads and performing actions such as
- * locking/unlocking, marking as important/resolved, and deleting threads.
+ * locking/unlocking, marking as important/resolved, editing, and deleting threads.
  */
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
 import { AdminThreadTable } from "@/components/admin/AdminThreadTable";
+import type { EditThreadFormData } from "@/components/admin/EditThreadDialog";
 import { mockThreads } from "@/lib/mock-data";
 import type { Thread } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-// PlusCircle, Download are commented out as they are not directly used for search functionality.
-// import { Button } from "@/components/ui/button";
-// import { PlusCircle, Download } from "lucide-react";
-
 
 export default function AdminThreadsPage() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  // Use a state for threads that can be mutated
-  const [threads, setThreads] = useState<Thread[]>([...mockThreads]);
+  const [threads, setThreads] = useState<Thread[]>([...mockThreads]); // Main state for threads
   const [filteredThreads, setFilteredThreads] = useState<Thread[]>(threads);
 
-  // Function to filter threads based on query - memoized with useCallback
-  const filterThreads = useCallback((query: string, currentThreadsToFilter: Thread[]) => {
+  const filterAndSetThreads = useCallback((query: string, currentThreadsToFilter: Thread[]) => {
     const lowerCaseQuery = query.toLowerCase().trim();
     if (!lowerCaseQuery) {
-      setFilteredThreads([...currentThreadsToFilter]); // Show all threads if query is empty
+      setFilteredThreads([...currentThreadsToFilter]);
       return;
     }
     const results = currentThreadsToFilter.filter(thread =>
@@ -40,54 +36,38 @@ export default function AdminThreadsPage() {
   }, []); 
 
   useEffect(() => {
-    // When the main 'threads' state changes (e.g., after an action), re-filter
-    filterThreads(searchQuery, threads);
-  }, [searchQuery, threads, filterThreads]);
+    filterAndSetThreads(searchQuery, threads);
+  }, [searchQuery, threads, filterAndSetThreads]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleToggleLock = (threadId: string, currentStatus: boolean) => {
-    setThreads(prevThreads =>
-      prevThreads.map(t =>
-        t.id === threadId ? { ...t, isLocked: !currentStatus } : t
-      )
+  const updateThreadInState = (threadId: string, updateFn: (thread: Thread) => Thread) => {
+    const updatedThreads = threads.map(t => 
+      t.id === threadId ? updateFn(t) : t
     );
-    
+    setThreads(updatedThreads);
+
+    // Also update mockThreads for demo persistence
     const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
     if (mockThreadIndex !== -1) {
-        mockThreads[mockThreadIndex].isLocked = !currentStatus;
+      mockThreads[mockThreadIndex] = updateFn(mockThreads[mockThreadIndex]);
     }
-    
+  };
+
+  const handleToggleLock = (threadId: string, currentStatus: boolean) => {
+    updateThreadInState(threadId, t => ({ ...t, isLocked: !currentStatus }));
     toast({ title: "Thread Action", description: `Thread ${!currentStatus ? 'locked' : 'unlocked'}.` });
   };
 
   const handleToggleImportant = (threadId: string, currentStatus: boolean) => {
-    setThreads(prevThreads =>
-      prevThreads.map(t =>
-        t.id === threadId ? { ...t, isImportant: !currentStatus } : t
-      )
-    );
-    const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
-    if (mockThreadIndex !== -1) {
-        mockThreads[mockThreadIndex].isImportant = !currentStatus;
-    }
-
+    updateThreadInState(threadId, t => ({ ...t, isImportant: !currentStatus }));
     toast({ title: "Thread Action", description: `Thread marked as ${!currentStatus ? 'important' : 'not important'}.` });
   };
 
   const handleToggleResolved = (threadId: string, currentStatus: boolean) => {
-    setThreads(prevThreads =>
-      prevThreads.map(t =>
-        t.id === threadId ? { ...t, isResolved: !currentStatus } : t
-      )
-    );
-    const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
-    if (mockThreadIndex !== -1) {
-        mockThreads[mockThreadIndex].isResolved = !currentStatus;
-    }
-
+    updateThreadInState(threadId, t => ({ ...t, isResolved: !currentStatus }));
     toast({ title: "Thread Action", description: `Thread marked as ${!currentStatus ? 'resolved' : 'unresolved'}.` });
   };
 
@@ -98,16 +78,28 @@ export default function AdminThreadsPage() {
     if (mockThreadIndex !== -1) {
         mockThreads.splice(mockThreadIndex, 1);
     }
-
     toast({ title: "Thread Deleted", description: `Thread "${threadTitle}" has been deleted.`, variant: "destructive" });
   };
 
+  const handleUpdateThread = (threadId: string, data: EditThreadFormData) => {
+    let originalTitle = "";
+    updateThreadInState(threadId, t => {
+      originalTitle = t.title; // Capture original title for toast message
+      const updatedThread = { ...t, title: data.title };
+      // If content editing was part of EditThreadFormData and implemented:
+      // if (data.content && updatedThread.posts && updatedThread.posts.length > 0) {
+      //   updatedThread.posts[0] = { ...updatedThread.posts[0], content: data.content, updatedAt: new Date().toISOString() };
+      // }
+      updatedThread.updatedAt = new Date().toISOString();
+      return updatedThread;
+    });
+    toast({ title: "Thread Updated", description: `Thread "${originalTitle}" has been updated to "${data.title}".` });
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Thread Management</h1>
-         {/* <Button><PlusCircle className="mr-2 h-4 w-4" /> Create Thread</Button> */}
       </div>
        <div className="flex items-center gap-2">
         <Input 
@@ -116,7 +108,6 @@ export default function AdminThreadsPage() {
           value={searchQuery}
           onChange={handleSearchChange}
         />
-        {/* Add filters for status, category etc. if needed */}
       </div>
       <AdminThreadTable 
         threads={filteredThreads}
@@ -124,6 +115,7 @@ export default function AdminThreadsPage() {
         onToggleImportant={handleToggleImportant}
         onToggleResolved={handleToggleResolved}
         onDeleteThread={handleDeleteThread}
+        onUpdateThread={handleUpdateThread} // Pass the new handler
       />
     </div>
   );

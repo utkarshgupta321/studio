@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview AdminThreadTable component for displaying and managing forum threads in the admin panel.
  * 
@@ -6,6 +7,7 @@
  */
 "use client";
 
+import { useState } from 'react'; // Added useState
 import type { Thread } from "@/lib/types";
 import {
   Table,
@@ -23,6 +25,7 @@ import Link from "next/link";
 import { formatDistanceToNowStrict } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
+import { EditThreadDialog, type EditThreadFormData } from "./EditThreadDialog"; // Import the new dialog
 
 interface AdminThreadTableProps {
   threads: Thread[];
@@ -30,7 +33,7 @@ interface AdminThreadTableProps {
   onToggleImportant: (threadId: string, currentStatus: boolean) => void;
   onToggleResolved: (threadId: string, currentStatus: boolean) => void;
   onDeleteThread: (threadId: string, threadTitle: string) => void;
-  // onEditThread: (threadId: string) => void; // Placeholder for future edit functionality
+  onUpdateThread: (threadId: string, data: EditThreadFormData) => void; // Added for updating thread
 }
 
 export function AdminThreadTable({ 
@@ -38,11 +41,26 @@ export function AdminThreadTable({
   onToggleLock, 
   onToggleImportant, 
   onToggleResolved, 
-  onDeleteThread 
+  onDeleteThread,
+  onUpdateThread // Added prop
 }: AdminThreadTableProps) {
   const { toast } = useToast();
+  const [editingThread, setEditingThread] = useState<Thread | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const handleThreadAction = (action: string, threadId: string, threadTitle: string, currentStatus?: boolean) => {
+  const handleEditClick = (thread: Thread) => {
+    setEditingThread(thread);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveThread = (threadId: string, data: EditThreadFormData) => {
+    onUpdateThread(threadId, data);
+    setIsEditDialogOpen(false);
+    setEditingThread(null);
+    // Toast notification will be handled by the parent page after successful update
+  };
+  
+  const handleThreadAction = (action: string, threadId: string, threadTitle: string, currentStatus?: boolean, thread?: Thread) => {
     switch (action) {
       case "ToggleLock":
         if (currentStatus !== undefined) onToggleLock(threadId, currentStatus);
@@ -57,9 +75,11 @@ export function AdminThreadTable({
         onDeleteThread(threadId, threadTitle);
         break;
       case "Edit":
-        // Placeholder for edit functionality
-        toast({ title: "Thread Action", description: `Edit functionality for "${threadTitle}" is coming soon.` });
-        console.log(`Edit thread ${threadId}`);
+        if (thread) {
+          handleEditClick(thread);
+        } else {
+            toast({ title: "Error", description: "Cannot edit thread, data missing.", variant: "destructive" });
+        }
         break;
       default:
         console.warn(`Unknown action: ${action}`);
@@ -72,76 +92,89 @@ export function AdminThreadTable({
   }
 
   return (
-    <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Author</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Replies</TableHead>
-            <TableHead>Views</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {threads.map((thread) => (
-            <TableRow key={thread.id}>
-              <TableCell className="font-medium max-w-xs truncate">
-                <Link href={`/threads/${thread.id}`} className="hover:underline" title={thread.title}>
-                    {thread.title}
-                </Link>
-              </TableCell>
-              <TableCell>{thread.author.username}</TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1">
-                    {thread.isImportant && <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600"><AlertTriangle className="mr-1 h-3 w-3"/>Imp</Badge>}
-                    {thread.isLocked && <Badge variant="secondary"><Lock className="mr-1 h-3 w-3"/>Lock</Badge>}
-                    {thread.isResolved && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle className="mr-1 h-3 w-3"/>Res</Badge>}
-                    {!thread.isImportant && !thread.isLocked && !thread.isResolved && <Badge variant="outline">Open</Badge>}
-                </div>
-              </TableCell>
-              <TableCell>{thread.replyCount}</TableCell>
-              <TableCell>{thread.viewCount}</TableCell>
-              <TableCell>{formatDistanceToNowStrict(new Date(thread.createdAt))} ago</TableCell>
-              <TableCell className="text-right">
-                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                       <span className="sr-only">Thread Actions</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleThreadAction("ToggleLock", thread.id, thread.title, thread.isLocked)}>
-                        {thread.isLocked ? <Unlock className="mr-2 h-4 w-4 text-green-500"/> : <Lock className="mr-2 h-4 w-4 text-orange-500" />}
-                        {thread.isLocked ? "Unlock" : "Lock"} Thread
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleThreadAction("ToggleImportant", thread.id, thread.title, thread.isImportant)}>
-                        <AlertTriangle className={`mr-2 h-4 w-4 ${thread.isImportant ? 'text-muted-foreground' : 'text-yellow-500'}`} />
-                        {thread.isImportant ? "Unmark Important" : "Mark Important"}
-                    </DropdownMenuItem>
-                     <DropdownMenuItem onClick={() => handleThreadAction("ToggleResolved", thread.id, thread.title, thread.isResolved)}>
-                        <CheckCircle className={`mr-2 h-4 w-4 ${thread.isResolved ? 'text-muted-foreground' : 'text-green-500'}`} />
-                        {thread.isResolved ? "Unmark Resolved" : "Mark Resolved"}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleThreadAction("Edit", thread.id, thread.title)}>
-                        <Edit className="mr-2 h-4 w-4" />Edit Thread (Soon)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleThreadAction("Delete", thread.id, thread.title)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />Delete Thread
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+    <>
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Author</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Replies</TableHead>
+              <TableHead>Views</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Card>
+          </TableHeader>
+          <TableBody>
+            {threads.map((thread) => (
+              <TableRow key={thread.id}>
+                <TableCell className="font-medium max-w-xs truncate">
+                  <Link href={`/threads/${thread.id}`} className="hover:underline" title={thread.title}>
+                      {thread.title}
+                  </Link>
+                </TableCell>
+                <TableCell>{thread.author.username}</TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                      {thread.isImportant && <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600"><AlertTriangle className="mr-1 h-3 w-3"/>Imp</Badge>}
+                      {thread.isLocked && <Badge variant="secondary"><Lock className="mr-1 h-3 w-3"/>Lock</Badge>}
+                      {thread.isResolved && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle className="mr-1 h-3 w-3"/>Res</Badge>}
+                      {!thread.isImportant && !thread.isLocked && !thread.isResolved && <Badge variant="outline">Open</Badge>}
+                  </div>
+                </TableCell>
+                <TableCell>{thread.replyCount}</TableCell>
+                <TableCell>{thread.viewCount}</TableCell>
+                <TableCell>{formatDistanceToNowStrict(new Date(thread.createdAt))} ago</TableCell>
+                <TableCell className="text-right">
+                   <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                         <span className="sr-only">Thread Actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleThreadAction("ToggleLock", thread.id, thread.title, thread.isLocked)}>
+                          {thread.isLocked ? <Unlock className="mr-2 h-4 w-4 text-green-500"/> : <Lock className="mr-2 h-4 w-4 text-orange-500" />}
+                          {thread.isLocked ? "Unlock" : "Lock"} Thread
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleThreadAction("ToggleImportant", thread.id, thread.title, thread.isImportant)}>
+                          <AlertTriangle className={`mr-2 h-4 w-4 ${thread.isImportant ? 'text-muted-foreground' : 'text-yellow-500'}`} />
+                          {thread.isImportant ? "Unmark Important" : "Mark Important"}
+                      </DropdownMenuItem>
+                       <DropdownMenuItem onClick={() => handleThreadAction("ToggleResolved", thread.id, thread.title, thread.isResolved)}>
+                          <CheckCircle className={`mr-2 h-4 w-4 ${thread.isResolved ? 'text-muted-foreground' : 'text-green-500'}`} />
+                          {thread.isResolved ? "Unmark Resolved" : "Mark Resolved"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleThreadAction("Edit", thread.id, thread.title, undefined, thread)}>
+                          <Edit className="mr-2 h-4 w-4" />Edit Thread
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleThreadAction("Delete", thread.id, thread.title)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />Delete Thread
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+      {editingThread && (
+        <EditThreadDialog
+          thread={editingThread}
+          isOpen={isEditDialogOpen}
+          onClose={() => {
+            setIsEditDialogOpen(false);
+            setEditingThread(null);
+          }}
+          onSave={handleSaveThread}
+        />
+      )}
+    </>
   );
 }
 
