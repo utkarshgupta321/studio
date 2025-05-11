@@ -1,3 +1,4 @@
+
 import { ThreadList } from "@/components/forums/ThreadList";
 import { mockCategories, mockThreads } from "@/lib/mock-data";
 import Link from "next/link";
@@ -10,6 +11,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 
 export default async function CategoryPage({ params }: { params: { categoryId: string } }) {
@@ -43,10 +46,16 @@ export default async function CategoryPage({ params }: { params: { categoryId: s
       
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="create-thread">
-          <AccordionTrigger>
-             <Button variant="default" size="lg">
-                <PlusCircle className="mr-2 h-5 w-5" /> Create New Thread
-             </Button>
+          <AccordionTrigger
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg" }),
+              "w-full justify-between hover:no-underline py-0" // Ensure it spans width, aligns chevron, overrides default padding
+            )}
+          >
+            <span className="flex items-center"> {/* Group custom icon and text */}
+              <PlusCircle className="mr-2 h-5 w-5" /> Create New Thread
+            </span>
+            {/* AccordionTrigger itself will add the ChevronDown icon here, pushed to the right by justify-between */}
           </AccordionTrigger>
           <AccordionContent>
             <CreateThreadForm categoryId={params.categoryId} />
@@ -58,3 +67,4 @@ export default async function CategoryPage({ params }: { params: { categoryId: s
     </div>
   );
 }
+
