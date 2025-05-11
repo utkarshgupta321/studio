@@ -25,6 +25,8 @@ interface PostItemProps {
   threadAuthorId?: string;
   onDeletePost?: (postId: string) => void;
   onEditPost?: (post: Post) => void;
+  onLikePost?: (postId: string) => void;
+  onPrepareReply?: (postContent: string, authorUsername: string) => void;
 }
 
 export function PostItem({
@@ -34,15 +36,14 @@ export function PostItem({
   threadAuthorId,
   onDeletePost,
   onEditPost,
+  onLikePost,
+  onPrepareReply,
 }: PostItemProps) {
   const { author, content, createdAt, updatedAt } = post;
   const { toast } = useToast();
 
   const isPostAuthor = currentUser?.id === author.id;
 
-  // Admin can do anything to non-original posts via these controls.
-  // Post author can edit/delete their own non-original posts.
-  // Original post (OP) edit/delete is typically handled at the thread level (Edit Thread, Delete Thread).
   const canEditThisPost = !isOriginalPost && (currentUser?.isAdmin || isPostAuthor);
   const canDeleteThisPost = !isOriginalPost && (currentUser?.isAdmin || isPostAuthor);
 
@@ -70,11 +71,27 @@ export function PostItem({
   };
 
   const handleReply = () => {
-    toast({ title: "Reply to Post", description: "Replying to specific posts is not yet implemented. Use the form at the bottom of the thread.", variant: "default" });
+    if (!currentUser) {
+      toast({ title: "Login Required", description: "Please log in to reply.", variant: "destructive" });
+      return;
+    }
+    if (onPrepareReply) {
+      onPrepareReply(post.content, post.author.username);
+    } else {
+      toast({ title: "Reply Action", description: "Could not prepare reply.", variant: "default" });
+    }
   };
 
   const handleLike = () => {
-    toast({ title: "Like Post", description: "Liking posts is not yet implemented.", variant: "default" });
+    if (!currentUser) {
+      toast({ title: "Login Required", description: "Please log in to like posts.", variant: "destructive" });
+      return;
+    }
+    if (onLikePost) {
+      onLikePost(post.id);
+    } else {
+      toast({ title: "Like Action", description: "Liking posts is not fully enabled here.", variant: "default" });
+    }
   };
 
   return (
@@ -107,7 +124,7 @@ export function PostItem({
             <MessageCircle className="h-4 w-4 mr-1" /> Reply
           </Button>
           <Button variant="ghost" size="sm" onClick={handleLike}>
-            <ThumbsUp className="h-4 w-4 mr-1" /> Like (0)
+            <ThumbsUp className="h-4 w-4 mr-1" /> Like ({post.likeCount || 0})
           </Button>
           {canEditThisPost && (
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleEdit}>

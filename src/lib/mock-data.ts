@@ -15,30 +15,35 @@ export let mockPosts: Post[] = [
     author: mockUsers[1],
     content: 'Hey everyone, just started playing GTA Online. Any tips for beginners?',
     createdAt: '2023-05-01T10:00:00Z',
+    likeCount: 5,
   },
   {
     id: 'post1-2',
     author: mockUsers[0],
     content: 'Welcome! Best tip: grind contact missions or heists to make money fast. Don\'t trust anyone with a jetpack.',
     createdAt: '2023-05-01T10:05:00Z',
+    likeCount: 12,
   },
   {
     id: 'post1-3',
     author: mockUsers[3],
     content: 'I can help with heists. Add me: LesterCrest. We\'ll make some serious paper.',
     createdAt: '2023-05-01T10:15:00Z',
+    likeCount: 8,
   },
   {
     id: 'post2-1',
     author: mockUsers[0],
     content: 'What\'s the best armored vehicle for missions these days? Kuruma still good?',
     createdAt: '2023-05-02T12:00:00Z',
+    likeCount: 7,
   },
   {
     id: 'post2-2',
     author: mockUsers[1],
     content: 'Kuruma is solid for PVE. For PVP, maybe Insurgent Pick-Up Custom or Nightshark.',
     createdAt: '2023-05-02T12:10:00Z',
+    likeCount: 9,
   },
 ];
 
@@ -80,7 +85,7 @@ export let mockThreads: Thread[] = [
     author: mockUsers[1],
     categoryId: 'crews-s1', // Belongs to 'crews' category in 'server1'
     createdAt: '2023-05-03T14:00:00Z',
-    posts: [{ id: 'post3-1', author: mockUsers[1], content: 'Need 2 more for Pacific Standard. Mics required. Add FranklinClinton.', createdAt: '2023-05-03T14:00:00Z' }],
+    posts: [{ id: 'post3-1', author: mockUsers[1], content: 'Need 2 more for Pacific Standard. Mics required. Add FranklinClinton.', createdAt: '2023-05-03T14:00:00Z', likeCount: 3 }],
     viewCount: 300,
     replyCount: 0,
     lastReplyAt: '2023-05-03T14:00:00Z',
@@ -92,7 +97,7 @@ export let mockThreads: Thread[] = [
     author: mockUsers[0],
     categoryId: 'announcements-s1', // Belongs to 'announcements' category in 'server1'
     createdAt: '2023-04-28T10:00:00Z',
-    posts: [{ id: 'post4-1', author: mockUsers[0], content: 'Please review the updated community guidelines. TL;DR: Be excellent to each other.', createdAt: '2023-04-28T10:00:00Z' }],
+    posts: [{ id: 'post4-1', author: mockUsers[0], content: 'Please review the updated community guidelines. TL;DR: Be excellent to each other.', createdAt: '2023-04-28T10:00:00Z', likeCount: 25 }],
     viewCount: 5000,
     replyCount: 0,
     isImportant: true,
@@ -106,7 +111,7 @@ export let mockThreads: Thread[] = [
     author: mockUsers[0],
     categoryId: 'rp-general-s2', // Belongs to 'rp-general' category in 'server2'
     createdAt: '2023-06-01T10:00:00Z',
-    posts: [{id: 'post5-1', author:mockUsers[0], content: 'Welcome to the RP Hub!', createdAt: '2023-06-01T10:00:00Z'}],
+    posts: [{id: 'post5-1', author:mockUsers[0], content: 'Welcome to the RP Hub!', createdAt: '2023-06-01T10:00:00Z', likeCount: 10}],
     viewCount: 100,
     replyCount: 0,
     isImportant: true,

@@ -1,13 +1,12 @@
 
 "use client";
 
-// Add 'use' to imports
-import { use, useState, useEffect } from 'react'; 
+import { use, useState, useEffect, useRef } from 'react'; 
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { PostList } from "@/components/threads/PostList";
 import { CreatePostForm } from "@/components/threads/CreatePostForm";
-import { mockThreads, mockUsers, mockCategories } from "@/lib/mock-data";
+import { mockThreads, mockUsers, mockCategories, mockPosts } from "@/lib/mock-data";
 import type { Thread, User as CurrentUserType, EditThreadFormData, Post } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Lock, Unlock, Edit, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
@@ -30,27 +29,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Define the expected shape of resolved params
 interface ResolvedPageParams {
   threadId: string;
 }
 
-// Update prop definition to expect a Promise for params, or the resolved object.
-// Based on the warning, Next.js might be passing a Promise.
 export default function ThreadPage({ params: paramsInput }: { params: ResolvedPageParams | Promise<ResolvedPageParams> }) {
-  // Unwrap the promise using React.use if it's a promise, otherwise use directly.
-  // This handles cases where Next.js might pass params as a promise.
   const params = (typeof (paramsInput as Promise<ResolvedPageParams>)?.then === 'function') 
     ? use(paramsInput as Promise<ResolvedPageParams>) 
     : paramsInput as ResolvedPageParams;
   
-  const { threadId } = params; // Destructure after resolving/accessing
+  const { threadId } = params;
 
   const router = useRouter();
   const { toast } = useToast();
   const [thread, setThread] = useState<Thread | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUserType | null>(null);
-  // isLoading now primarily reflects the loading of thread data, after params are resolved.
   const [isLoading, setIsLoading] = useState(true); 
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -59,16 +52,18 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isEditPostDialogOpen, setIsEditPostDialogOpen] = useState(false);
 
+  const [replyQuote, setReplyQuote] = useState<string | null>(null);
+  const createPostFormRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
-    // params.threadId (now just threadId) is available and resolved
     const foundThread = mockThreads.find(t => t.id === threadId); 
-    const user = mockUsers[0]; // Simulate Michael (admin) as current user
+    const user = mockUsers[0]; 
     
-    setThread(foundThread || null);
+    setThread(foundThread ? {...foundThread, posts: [...foundThread.posts.map(p => ({...p}))]} : null); // Deep copy posts for local state updates
     setCurrentUser(user);
     setIsLoading(false);
-  }, [threadId]); // Dependency on the resolved threadId
+  }, [threadId]); 
 
   const category = thread ? mockCategories.find(c => c.id === thread.categoryId) : null;
   const categoryLink = category ? `/forums/${thread?.categoryId}` : '/forums';
@@ -114,7 +109,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
   };
   
   const handleToggleLock = () => {
-     if (thread && currentUser?.isAdmin) { // Only admin can lock/unlock threads
+     if (thread && currentUser?.isAdmin) { 
         const updatedThread = { ...thread, isLocked: !thread.isLocked };
         const threadIndex = mockThreads.findIndex(t => t.id === thread.id);
         if (threadIndex !== -1) {
@@ -134,7 +129,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
       toast({ title: "Error", description: "Post not found.", variant: "destructive" });
       return;
     }
-    if (postIndex === 0) { // Original post
+    if (postIndex === 0) { 
         toast({ title: "Action Not Allowed", description: "Cannot delete the original post this way. Delete the thread instead.", variant: "destructive" });
         return;
     }
@@ -145,13 +140,18 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
     const mainThreadIndex = mockThreads.findIndex(t => t.id === thread.id);
     if (mainThreadIndex !== -1) {
       mockThreads[mainThreadIndex] = updatedThreadData;
+       // Remove post from global mockPosts as well
+      const globalPostIndex = mockPosts.findIndex(p => p.id === postId);
+      if (globalPostIndex !== -1) {
+        mockPosts.splice(globalPostIndex, 1);
+      }
     }
     setThread(updatedThreadData);
     toast({ title: "Post Deleted", description: "The post has been successfully deleted." });
   };
 
   const handleOpenEditPostDialog = (postToEdit: Post) => {
-    if (postToEdit.id === thread?.posts[0]?.id) { // Is Original Post
+    if (postToEdit.id === thread?.posts[0]?.id) { 
         toast({ title: "Info", description: "To edit the original post's content, use the 'Edit Thread' option (modifies title, future versions might allow content edit here too).", variant: "default" });
         return;
     }
@@ -180,11 +180,63 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
     
     const mainThreadIndex = mockThreads.findIndex(t => t.id === thread.id);
     if (mainThreadIndex !== -1) {
-      mockThreads[mainThreadIndex] = updatedThreadData;
+      mockThreads[mainThreadIndex].posts[postIndex] = updatedPost; // Update post in mockThreads
+      // Update post in global mockPosts as well
+      const globalPostIndex = mockPosts.findIndex(p => p.id === postId);
+      if (globalPostIndex !== -1) {
+        mockPosts[globalPostIndex] = updatedPost;
+      }
     }
     setThread(updatedThreadData);
     toast({ title: "Post Updated", description: "Your post has been successfully updated." });
     handleCloseEditPostDialog();
+  };
+
+  const handleLikePost = (postId: string) => {
+    if (!currentUser) {
+      toast({ title: "Login Required", description: "Please log in to like posts.", variant: "destructive" });
+      return;
+    }
+    if (!thread) return;
+
+    const threadIndex = mockThreads.findIndex(t => t.id === thread.id);
+    if (threadIndex === -1) return;
+
+    const postIndexInThread = mockThreads[threadIndex].posts.findIndex(p => p.id === postId);
+    if (postIndexInThread === -1) return;
+
+    const targetPostInMockThreads = mockThreads[threadIndex].posts[postIndexInThread];
+    targetPostInMockThreads.likeCount = (targetPostInMockThreads.likeCount || 0) + 1;
+
+    const postIndexInMockPosts = mockPosts.findIndex(p => p.id === postId);
+    if (postIndexInMockPosts !== -1) {
+      mockPosts[postIndexInMockPosts].likeCount = (mockPosts[postIndexInMockPosts].likeCount || 0) + 1;
+    }
+    
+    setThread(prevThread => {
+      if (!prevThread) return null;
+      const updatedPosts = prevThread.posts.map(p => 
+        p.id === postId ? { ...p, likeCount: (p.likeCount || 0) + 1 } : p
+      );
+      return { ...prevThread, posts: updatedPosts };
+    });
+
+    toast({ title: "Post Liked!", description: "You've liked this post." });
+  };
+
+  const handlePrepareReply = (postContent: string, authorUsername: string) => {
+    if (!currentUser) {
+      toast({ title: "Login Required", description: "Please log in to reply.", variant: "destructive" });
+      return;
+    }
+    const formattedQuote = `> **${authorUsername} wrote:**\n${postContent.split('\n').map(line => `> ${line}`).join('\n')}\n\n`;
+    setReplyQuote(formattedQuote);
+    
+    setTimeout(() => {
+        createPostFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const textarea = createPostFormRef.current?.querySelector('textarea');
+        textarea?.focus();
+    }, 0);
   };
 
 
@@ -267,21 +319,30 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
         threadAuthorId={thread.author.id}
         onDeletePost={handleDeletePost}
         onEditPost={handleOpenEditPostDialog}
+        onLikePost={handleLikePost}
+        onPrepareReply={handlePrepareReply}
       />
+      
+      <div ref={createPostFormRef} className="mt-8">
+        {!thread.isLocked && currentUser && <CreatePostForm 
+            threadId={thread.id} 
+            initialContent={replyQuote}
+            onPostCreated={() => {
+                const refreshedThread = mockThreads.find(t => t.id === threadId);
+                if(refreshedThread) setThread({...refreshedThread, posts: [...refreshedThread.posts.map(p => ({...p}))]});
+                setReplyQuote(null); // Clear the quote after posting
+            }} 
+        />}
+      </div>
 
-      {!thread.isLocked && currentUser && <CreatePostForm threadId={thread.id} onPostCreated={() => {
-          // Refresh thread data to show new post
-          const refreshedThread = mockThreads.find(t => t.id === threadId);
-          if(refreshedThread) setThread(refreshedThread);
-      }} />}
       {thread.isLocked && (
-        <div className="text-center p-4 border rounded-md bg-card text-muted-foreground">
+        <div className="text-center p-4 border rounded-md bg-card text-muted-foreground mt-8">
             <Lock className="h-6 w-6 mx-auto mb-2 text-yellow-500"/>
             This thread is locked. No new replies can be added.
         </div>
       )}
       {!currentUser && !thread.isLocked && (
-         <div className="text-center p-4 border rounded-md bg-card text-muted-foreground">
+         <div className="text-center p-4 border rounded-md bg-card text-muted-foreground mt-8">
             Please <Link href="/login" className="text-primary hover:underline">log in</Link> to reply.
         </div>
       )}

@@ -19,6 +19,7 @@ export interface Post {
   content: string;
   createdAt: string; // ISO Date string
   updatedAt?: string; // ISO Date string
+  likeCount?: number;
 }
 
 export interface Thread {

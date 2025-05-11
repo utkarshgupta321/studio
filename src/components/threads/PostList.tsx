@@ -8,9 +8,11 @@ interface PostListProps {
   threadAuthorId?: string;
   onDeletePost?: (postId: string) => void;
   onEditPost?: (post: Post) => void; 
+  onLikePost?: (postId: string) => void;
+  onPrepareReply?: (postContent: string, authorUsername: string) => void;
 }
 
-export function PostList({ posts, currentUser, threadAuthorId, onDeletePost, onEditPost }: PostListProps) {
+export function PostList({ posts, currentUser, threadAuthorId, onDeletePost, onEditPost, onLikePost, onPrepareReply }: PostListProps) {
   if (!posts || posts.length === 0) {
     return <p className="text-muted-foreground">No posts in this thread yet.</p>;
   }
@@ -26,6 +28,8 @@ export function PostList({ posts, currentUser, threadAuthorId, onDeletePost, onE
           threadAuthorId={threadAuthorId}
           onDeletePost={onDeletePost}
           onEditPost={onEditPost} 
+          onLikePost={onLikePost}
+          onPrepareReply={onPrepareReply}
         />
       ))}
     </div>
