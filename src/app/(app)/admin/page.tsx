@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockUsers, mockThreads, mockCategories, mockServers } from "@/lib/mock-data";
-import { Users, MessageSquareText, BarChart3, ShieldAlert, Server as ServerIcon } from "lucide-react";
+import { Users, MessageSquareText, LayoutList, ShieldAlert, Server as ServerIcon, AlertCircle } from "lucide-react"; // Added AlertCircle
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -11,20 +11,22 @@ export default function AdminDashboardPage() {
   const totalCategories = mockCategories.length;
   const totalServers = mockServers.length;
   const bannedUsers = mockUsers.filter(u => u.isBanned).length;
+  const unresolvedThreads = mockThreads.filter(t => !t.isResolved).length; // Calculate unresolved threads
 
   const stats = [
-    { title: "Total Users", value: totalUsers, icon: Users, href: "/admin/users", color: "text-blue-500" },
-    { title: "Total Servers", value: totalServers, icon: ServerIcon, href: "/admin/servers", color: "text-indigo-500" },
-    { title: "Total Categories", value: totalCategories, icon: BarChart3, href: "/admin/categories", color: "text-purple-500" },
+    { title: "Total Users", value: totalUsers, icon: Users, href: "/admin/users", color: "text-primary" }, // Using primary color
+    { title: "Total Servers", value: totalServers, icon: ServerIcon, href: "/admin/servers", color: "text-primary" },
+    { title: "Total Categories", value: totalCategories, icon: LayoutList, href: "/admin/categories", color: "text-primary" },
     { title: "Total Threads", value: totalThreads, icon: MessageSquareText, href: "/admin/threads", color: "text-green-500" },
     { title: "Banned Users", value: bannedUsers, icon: ShieldAlert, href: "/admin/users?filter=banned", color: "text-red-500" },
+    { title: "Unresolved Threads", value: unresolvedThreads, icon: AlertCircle, href: "/admin/threads?filter=unresolved", color: "text-orange-500" }, // New stat card
   ];
 
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"> {/* Adjusted grid for 5 items */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> {/* Adjusted grid for 6 items */}
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -71,4 +73,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
