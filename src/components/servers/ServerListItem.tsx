@@ -31,10 +31,11 @@ export function ServerListItem({ server }: ServerListItemProps) {
       <CardContent className="pt-0">
         <Link href={`/forums/server/${server.id}`} passHref>
             <Button variant="outline" className="w-full sm:w-auto">
-                View Categories <ArrowRight className="ml-2 h-4 w-4" />
+                View Forums <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
         </Link>
       </CardContent>
     </Card>
   );
 }
+
