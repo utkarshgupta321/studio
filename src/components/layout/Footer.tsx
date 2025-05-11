@@ -1,20 +1,12 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Gamepad2, Phone, Mail, Instagram, Youtube, MessageSquare as DiscordIcon } from 'lucide-react'; 
+import { Gamepad2, Mail, Instagram, Youtube, MessageSquare as DiscordIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-
-const linkItems = [
-  { name: 'Home', href: '/' },
-  { name: 'Gallery', href: '#' }, // Placeholder
-  { name: 'Download Launcher', href: '#' }, // Placeholder
-  { name: 'Register', href: '/register' },
-  { name: 'Login', href: '/login' },
-  { name: 'Forum', href: '/forums' },
-];
 
 const socialLinks = [
   { name: 'Discord', href: '#', icon: DiscordIcon },
@@ -51,90 +43,66 @@ export function Footer() {
 
   return (
     <footer className="bg-card text-card-foreground border-t border-border/40">
-      <div className="container mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="container mx-auto max-w-6xl px-4 py-2 sm:px-6 lg:px-8"> {/* Reduced py */}
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-3 items-center"> {/* Reduced gap, items-center */}
           {/* Column 1: About & Contact */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Gamepad2 className="h-6 w-6 text-primary" />
+          <div className="space-y-1"> {/* Reduced space-y */}
+            <div className="flex items-center space-x-1.5"> {/* Reduced space-x */}
+              <Gamepad2 className="h-5 w-5 text-primary" /> {/* Reduced icon size */}
+              <span className="font-semibold text-xs">GTA V Galaxy RolePlay</span> {/* Reduced font size */}
             </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">About us</h3>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Welcome to the ultimate GTA experience! Join us and let the chaos begin!
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">Contact us</h3>
-              <ul className="mt-1 space-y-0.5 text-xs">
-                <li className="flex items-center text-muted-foreground">
-                  <Phone className="mr-2 h-3.5 w-3.5 text-primary flex-shrink-0" />
-                  +91 750*****07
-                </li>
-                <li className="flex items-center text-muted-foreground">
-                  <Mail className="mr-2 h-3.5 w-3.5 text-primary flex-shrink-0" />
-                  <a href="mailto:support@gtavgalaxy.com" className="hover:text-primary transition-colors">
-                    support@gtavgalaxy.com
-                  </a>
-                </li>
-              </ul>
+            <p className="text-[10px] text-muted-foreground"> {/* Reduced font size */}
+              Join the chaos!
+            </p>
+            <div className="flex items-center text-[10px] text-muted-foreground"> {/* Reduced font size */}
+              <Mail className="mr-1.5 h-3 w-3 text-primary flex-shrink-0" /> {/* Reduced icon and margin */}
+              <a href="mailto:support@gtavgalaxy.com" className="hover:text-primary transition-colors">
+                support@gtavgalaxy.com
+              </a>
             </div>
           </div>
 
-          {/* Column 2: Links */}
-          <div className="space-y-0.5 md:justify-self-start">
-            <h3 className="text-sm font-semibold text-foreground mb-1.5">Links</h3>
-            <ul className="space-y-0.5 text-xs">
-              {linkItems.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-muted-foreground hover:text-primary transition-colors">
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Column 2: Social Links */}
+          <div className="flex justify-center md:justify-start items-center space-x-1.5"> {/* Reduced space-x */}
+            {socialLinks.map((social) => {
+              const Icon = social.icon;
+              return (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="p-1 bg-muted/30 dark:bg-muted/50 hover:bg-muted rounded-sm transition-colors group" // Reduced padding, rounded-sm
+                >
+                  <Icon className="h-3 w-3 text-muted-foreground group-hover:text-primary" /> {/* Reduced icon size */}
+                </a>
+              );
+            })}
           </div>
 
           {/* Column 3: Subscribe us */}
-          <div className="space-y-2 md:col-span-2 lg:col-span-1">
-            <h3 className="text-sm font-semibold text-foreground">Subscribe us</h3>
-            <form onSubmit={handleSubscribe} className="space-y-1.5">
+          <div className="space-y-1 md:justify-self-end"> {/* Reduced space-y */}
+             <form onSubmit={handleSubscribe} className="flex items-center space-x-1"> {/* Reduced space-x, flex for inline */}
               <Input
                 type="email"
-                placeholder="Enter email address"
-                className="bg-background border-border placeholder:text-muted-foreground focus:ring-primary h-8 text-xs"
+                placeholder="Your email"
+                className="bg-background border-border placeholder:text-muted-foreground focus:ring-primary h-7 text-[10px] flex-grow" // Reduced height and font size
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <Button type="submit" size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground dark:text-primary-foreground text-xs h-8">
+              <Button type="submit" size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground dark:text-primary-foreground text-[10px] h-7 px-2"> {/* Reduced height, font size, padding */}
                 Send
               </Button>
             </form>
-            <div className="flex space-x-1.5 pt-1">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.name}
-                    className="p-1 bg-muted/30 dark:bg-muted/50 hover:bg-muted rounded-md transition-colors group"
-                  >
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
-                  </a>
-                );
-              })}
-            </div>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="mt-4 border-t border-border/40 pt-3 text-center">
-          <p className="text-xs text-muted-foreground">
-            Copyright &copy; {currentYear || new Date().getFullYear()} <Link href="/" className="text-primary hover:underline">GTA V Galaxy RolePlay</Link> All rights reserved
+        <div className="mt-2 border-t border-border/40 pt-1.5 text-center"> {/* Reduced mt and pt */}
+          <p className="text-[10px] text-muted-foreground"> {/* Reduced font size */}
+            &copy; {currentYear || new Date().getFullYear()} <Link href="/" className="text-primary hover:underline">GTA V Galaxy RolePlay</Link>. All rights reserved.
           </p>
         </div>
       </div>
