@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -80,6 +81,11 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
+             <div className="text-sm">
+              <Link href="/forgot-password" passHref className="font-medium text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline">
+                Forgot your password?
+              </Link>
+            </div>
             <Button type="submit" className="w-full">
               <LogIn className="mr-2 h-4 w-4" /> Login
             </Button>
@@ -97,3 +103,4 @@ export function LoginForm() {
     </Card>
   );
 }
+

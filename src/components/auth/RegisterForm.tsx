@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +23,11 @@ import { UserPlus } from "lucide-react";
 const formSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters." })
+    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
+    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter." })
+    .regex(/[0-9]/, { message: "Password must contain at least one number." })
+    .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one special character." }),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -45,8 +50,14 @@ export function RegisterForm() {
     // Simulate API call
     console.log("Registration submitted:", values);
     toast({
-      title: "Registration Attempt",
-      description: "Simulating registration... In a real app, you'd be logged in and redirected.",
+      title: "Registration Successful!",
+      description: "Your account has been created. We're (simulating) logging you in...",
+    });
+    // Simulate sending verification email
+    toast({
+        title: "Verify Your Email",
+        description: "A verification link has been (simulated) sent to your email address. Please check your inbox to complete registration.",
+        duration: 7000, // Longer duration for this important message
     });
     // Here you would typically redirect or update auth state
     // For demo: form.reset();
@@ -56,7 +67,7 @@ export function RegisterForm() {
     <Card className="w-full shadow-xl">
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2"><UserPlus className="h-6 w-6 text-primary" /> Create an Account</CardTitle>
-        <CardDescription>Join the GTA5Grand Lite community today!</CardDescription>
+        <CardDescription>Join the GTA V Galaxy RolePlay community today!</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -81,7 +92,7 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input type="email" placeholder="you@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
