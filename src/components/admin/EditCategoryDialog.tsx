@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import type { ForumCategory, EditCategoryFormData } from '@/lib/types';
+import type { ForumCategory, EditCategoryFormData, Server } from '@/lib/types'; // Added Server
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -36,12 +36,12 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-
 const editCategorySchema = z.object({
-  id: z.string(), // Keep id for submission
+  id: z.string(),
   name: z.string().min(3, "Category name must be at least 3 characters.").max(50, "Category name cannot exceed 50 characters."),
   description: z.string().min(10, "Description must be at least 10 characters.").max(200, "Description cannot exceed 200 characters."),
   iconName: z.string().optional(),
+  serverId: z.string().min(1, "Server selection is required."),
 });
 
 interface EditCategoryDialogProps {
@@ -49,9 +49,10 @@ interface EditCategoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: EditCategoryFormData) => void;
+  servers: Server[]; // Pass available servers
 }
 
-export function EditCategoryDialog({ category, isOpen, onClose, onSave }: EditCategoryDialogProps) {
+export function EditCategoryDialog({ category, isOpen, onClose, onSave, servers }: EditCategoryDialogProps) {
   const form = useForm<EditCategoryFormData>({
     resolver: zodResolver(editCategorySchema),
     defaultValues: {
@@ -59,6 +60,7 @@ export function EditCategoryDialog({ category, isOpen, onClose, onSave }: EditCa
       name: category.name,
       description: category.description,
       iconName: category.iconName || defaultCategoryIconName,
+      serverId: category.serverId || (servers.length > 0 ? servers[0].id : ''),
     },
   });
 
@@ -69,9 +71,10 @@ export function EditCategoryDialog({ category, isOpen, onClose, onSave }: EditCa
         name: category.name,
         description: category.description,
         iconName: category.iconName || defaultCategoryIconName,
+        serverId: category.serverId || (servers.length > 0 ? servers[0].id : ''),
       });
     }
-  }, [category, form, isOpen]);
+  }, [category, form, isOpen, servers]);
 
   function onSubmit(values: EditCategoryFormData) {
     onSave(values);
@@ -90,6 +93,30 @@ export function EditCategoryDialog({ category, isOpen, onClose, onSave }: EditCa
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="serverId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Server</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a server" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {servers.map((server) => (
+                        <SelectItem key={server.id} value={server.id}>
+                          {server.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

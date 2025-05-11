@@ -5,7 +5,7 @@ import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import type { AddCategoryFormData } from '@/lib/types';
+import type { AddCategoryFormData, Server } from '@/lib/types'; // Added Server
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -36,32 +36,46 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-
 const addCategorySchema = z.object({
   name: z.string().min(3, "Category name must be at least 3 characters.").max(50, "Category name cannot exceed 50 characters."),
   description: z.string().min(10, "Description must be at least 10 characters.").max(200, "Description cannot exceed 200 characters."),
   iconName: z.string().optional(),
+  serverId: z.string().min(1, "Server selection is required."),
 });
 
 interface AddCategoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: AddCategoryFormData) => void;
+  servers: Server[]; // Pass available servers
 }
 
-export function AddCategoryDialog({ isOpen, onClose, onSave }: AddCategoryDialogProps) {
+export function AddCategoryDialog({ isOpen, onClose, onSave, servers }: AddCategoryDialogProps) {
   const form = useForm<AddCategoryFormData>({
     resolver: zodResolver(addCategorySchema),
     defaultValues: {
       name: '',
       description: '',
       iconName: defaultCategoryIconName,
+      serverId: servers.length > 0 ? servers[0].id : '', // Default to first server or empty
     },
   });
 
+  React.useEffect(() => {
+    if (servers.length > 0 && !form.getValues("serverId")) {
+        form.setValue("serverId", servers[0].id);
+    }
+  }, [servers, form]);
+
+
   function onSubmit(values: AddCategoryFormData) {
     onSave(values);
-    form.reset(); // Reset form after successful save
+    form.reset({ 
+        name: '', 
+        description: '', 
+        iconName: defaultCategoryIconName, 
+        serverId: servers.length > 0 ? servers[0].id : '' 
+    });
   }
 
   return (
@@ -75,6 +89,30 @@ export function AddCategoryDialog({ isOpen, onClose, onSave }: AddCategoryDialog
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="serverId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Server</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a server" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {servers.map((server) => (
+                        <SelectItem key={server.id} value={server.id}>
+                          {server.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

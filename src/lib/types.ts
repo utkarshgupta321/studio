@@ -38,6 +38,12 @@ export interface Thread {
   lastReplyBy?: User;
 }
 
+export interface Server {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export interface ForumCategory {
   id: string;
   name: string;
@@ -52,15 +58,26 @@ export interface ForumCategory {
   };
   icon?: LucideIcon;
   iconName?: string; // Store the string name of the icon for easier editing
+  serverId: string; 
+  serverName?: string; // Optional: for convenience, can be derived
 }
 
 export interface AddCategoryFormData {
   name: string;
   description: string;
   iconName?: string;
+  serverId: string;
 }
 
 export interface EditCategoryFormData extends AddCategoryFormData {
   id: string;
 }
 
+export interface AddServerFormData {
+  name: string;
+  description: string;
+}
+
+export interface EditServerFormData extends AddServerFormData {
+  id: string;
+}

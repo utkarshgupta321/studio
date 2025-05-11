@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2, Folder } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Folder, ServerIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { getLucideIcon } from "@/lib/icon-map";
 
@@ -34,6 +34,7 @@ export function AdminCategoryTable({ categories, onEditCategory, onDeleteCategor
           <TableRow>
             <TableHead className="w-12">Icon</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>Server</TableHead>
             <TableHead>Description</TableHead>
             <TableHead className="text-center">Threads</TableHead>
             <TableHead className="text-center">Posts</TableHead>
@@ -49,6 +50,11 @@ export function AdminCategoryTable({ categories, onEditCategory, onDeleteCategor
                   <IconComponent className="h-5 w-5 text-primary" />
                 </TableCell>
                 <TableCell className="font-medium">{category.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <ServerIcon className="h-4 w-4"/> {category.serverName || category.serverId}
+                  </div>
+                </TableCell>
                 <TableCell className="text-muted-foreground max-w-xs truncate">{category.description}</TableCell>
                 <TableCell className="text-center">{category.threadsCount}</TableCell>
                 <TableCell className="text-center">{category.postsCount}</TableCell>
