@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Gamepad2, Home, Menu, MessageSquare, Mail, Instagram, Youtube, Headphones } from "lucide-react"; // Added MessageSquare for Forum, Mail for Contact Us
 import { UserNav } from "./UserNav";
 import { ThemeToggle } from "./ThemeToggle";
+import { cn } from "@/lib/utils"; // Import the cn function
 
 const NavLink = ({ href, children, className }: { href: string; children: React.ReactNode, className?: string }) => (
   <Link href={href} passHref>
@@ -100,3 +101,4 @@ export function Header() {
     </header>
   );
 }
+
