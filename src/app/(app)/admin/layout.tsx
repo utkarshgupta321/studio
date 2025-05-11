@@ -1,8 +1,9 @@
+
 import type { ReactNode } from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, LayoutDashboard, Users, MessageSquareText } from 'lucide-react';
+import { Menu, LayoutDashboard, Users, MessageSquareText, LayoutList } from 'lucide-react';
 import Link from 'next/link';
 
 const MobileAdminNavItem = ({ href, children }: { href: string; children: React.ReactNode }) => (
@@ -37,6 +38,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <MobileAdminNavItem href="/admin"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</MobileAdminNavItem>
                 <MobileAdminNavItem href="/admin/users"><Users className="mr-2 h-4 w-4" /> User Management</MobileAdminNavItem>
                 <MobileAdminNavItem href="/admin/threads"><MessageSquareText className="mr-2 h-4 w-4" /> Thread Management</MobileAdminNavItem>
+                <MobileAdminNavItem href="/admin/categories"><LayoutList className="mr-2 h-4 w-4" /> Category Management</MobileAdminNavItem>
             </nav>
           </SheetContent>
         </Sheet>

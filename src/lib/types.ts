@@ -51,4 +51,16 @@ export interface ForumCategory {
     timestamp: string;
   };
   icon?: LucideIcon;
+  iconName?: string; // Store the string name of the icon for easier editing
 }
+
+export interface AddCategoryFormData {
+  name: string;
+  description: string;
+  iconName?: string;
+}
+
+export interface EditCategoryFormData extends AddCategoryFormData {
+  id: string;
+}
+

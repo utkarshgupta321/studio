@@ -1,14 +1,15 @@
-import type { User, ForumCategory, Thread, Post } from '@/lib/types';
-import { MessageSquare, ShieldCheck, Users, Code, HelpCircle, Briefcase } from 'lucide-react';
 
-export const mockUsers: User[] = [
+import type { User, ForumCategory, Thread, Post } from '@/lib/types';
+import { MessageSquare, ShieldCheck, Users, Code, HelpCircle, Briefcase, LayoutList } from 'lucide-react';
+
+export let mockUsers: User[] = [
   { id: 'user1', username: 'MichaelDeSanta', email: 'michael@example.com', profileImageUrl: 'https://picsum.photos/seed/michael/40/40', joinDate: '2022-01-15T10:00:00Z', isAdmin: true, dataAiHint: 'man face' },
   { id: 'user2', username: 'FranklinClinton', email: 'franklin@example.com', profileImageUrl: 'https://picsum.photos/seed/franklin/40/40', joinDate: '2022-03-22T14:30:00Z', dataAiHint: 'man portrait' },
   { id: 'user3', username: 'TrevorPhilips', email: 'trevor@example.com', profileImageUrl: 'https://picsum.photos/seed/trevor/40/40', joinDate: '2021-11-05T08:20:00Z', isBanned: true, banEndDate: '2024-12-31T23:59:59Z', dataAiHint: 'person closeup' },
   { id: 'user4', username: 'LesterCrest', email: 'lester@example.com', profileImageUrl: 'https://picsum.photos/seed/lester/40/40', joinDate: '2022-05-10T12:00:00Z', dataAiHint: 'man glasses' },
 ];
 
-export const mockPosts: Post[] = [
+export let mockPosts: Post[] = [
   {
     id: 'post1-1',
     author: mockUsers[1],
@@ -41,7 +42,7 @@ export const mockPosts: Post[] = [
   },
 ];
 
-export const mockThreads: Thread[] = [
+export let mockThreads: Thread[] = [
   {
     id: 'thread1',
     title: 'New Player Guide & FAQ',
@@ -96,57 +97,89 @@ export const mockThreads: Thread[] = [
   },
 ];
 
-export const mockCategories: ForumCategory[] = [
+export let mockCategories: ForumCategory[] = [
   { 
     id: 'announcements', 
     name: 'Announcements', 
     description: 'Official news and announcements from the GTA5Grand team.',
-    threadsCount: 1,
-    postsCount: 1,
-    lastThread: { id: 'thread4', title: 'Site Rules and Guidelines Update', authorName: mockUsers[0].username, timestamp: '2023-04-28T10:00:00Z'},
+    threadsCount: mockThreads.filter(t => t.categoryId === 'announcements').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'announcements').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] 
+        ? { id: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id, 
+            title: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title, 
+            authorName: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username, 
+            timestamp: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+          } 
+        : undefined,
     icon: ShieldCheck,
+    iconName: 'ShieldCheck',
   },
   { 
     id: 'general', 
     name: 'General Discussion', 
     description: 'Talk about anything GTA 5 related.',
-    threadsCount: 1,
-    postsCount: 3,
-    lastThread: { id: 'thread1', title: 'New Player Guide & FAQ', authorName: mockUsers[0].username, timestamp: '2023-05-01T10:15:00Z'},
+    threadsCount: mockThreads.filter(t => t.categoryId === 'general').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'general').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+          }
+        : undefined,
     icon: MessageSquare,
+    iconName: 'MessageSquare',
   },
   { 
     id: 'gameplay', 
     name: 'Gameplay & Strategy', 
     description: 'Discuss missions, heists, vehicles, and tactics.',
-    threadsCount: 1,
-    postsCount: 2,
-    lastThread: { id: 'thread2', title: 'Best Armored Vehicles for Missions?', authorName: mockUsers[0].username, timestamp: '2023-05-02T12:10:00Z'},
-    icon: Code, // Using Code as a placeholder for strategy/gameplay
+    threadsCount: mockThreads.filter(t => t.categoryId === 'gameplay').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'gameplay').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+          }
+        : undefined,
+    icon: Code,
+    iconName: 'Code',
   },
   { 
     id: 'crews', 
     name: 'Crews & Recruitment', 
     description: 'Find a crew or recruit members for your own.',
-    threadsCount: 1,
-    postsCount: 1,
-    lastThread: { id: 'thread3', title: 'Looking for Heist Crew (PS5)', authorName: mockUsers[1].username, timestamp: '2023-05-03T14:00:00Z'},
+    threadsCount: mockThreads.filter(t => t.categoryId === 'crews').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'crews').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+          }
+        : undefined,
     icon: Users,
+    iconName: 'Users',
   },
   { 
     id: 'support', 
     name: 'Technical Support', 
     description: 'Get help with game issues or site problems.',
-    threadsCount: 0,
-    postsCount: 0,
+    threadsCount: mockThreads.filter(t => t.categoryId === 'support').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'support').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: undefined,
     icon: HelpCircle,
+    iconName: 'HelpCircle',
   },
   { 
     id: 'offtopic', 
     name: 'Off-Topic', 
     description: 'Discuss anything not related to GTA 5.',
-    threadsCount: 0,
-    postsCount: 0,
-    icon: Briefcase, // Placeholder for off-topic
+    threadsCount: mockThreads.filter(t => t.categoryId === 'offtopic').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'offtopic').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: undefined,
+    icon: Briefcase,
+    iconName: 'Briefcase',
   },
 ];
