@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/home.htm',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
