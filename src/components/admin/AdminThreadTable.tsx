@@ -1,3 +1,9 @@
+/**
+ * @fileOverview AdminThreadTable component for displaying and managing forum threads in the admin panel.
+ * 
+ * This component renders a table of threads with actions like lock/unlock, mark important/resolved, edit, and delete.
+ * It receives thread data and action handlers as props from its parent component.
+ */
 "use client";
 
 import type { Thread } from "@/lib/types";
@@ -20,18 +26,49 @@ import { Card } from "@/components/ui/card";
 
 interface AdminThreadTableProps {
   threads: Thread[];
+  onToggleLock: (threadId: string, currentStatus: boolean) => void;
+  onToggleImportant: (threadId: string, currentStatus: boolean) => void;
+  onToggleResolved: (threadId: string, currentStatus: boolean) => void;
+  onDeleteThread: (threadId: string, threadTitle: string) => void;
+  // onEditThread: (threadId: string) => void; // Placeholder for future edit functionality
 }
 
-export function AdminThreadTable({ threads }: AdminThreadTableProps) {
+export function AdminThreadTable({ 
+  threads, 
+  onToggleLock, 
+  onToggleImportant, 
+  onToggleResolved, 
+  onDeleteThread 
+}: AdminThreadTableProps) {
   const { toast } = useToast();
 
-  const handleThreadAction = (action: string, threadId: string, threadTitle: string) => {
-    console.log(`${action} thread ${threadId}`);
-    toast({ title: "Thread Action", description: `Simulated ${action.toLowerCase()} thread: ${threadTitle}` });
+  const handleThreadAction = (action: string, threadId: string, threadTitle: string, currentStatus?: boolean) => {
+    switch (action) {
+      case "ToggleLock":
+        if (currentStatus !== undefined) onToggleLock(threadId, currentStatus);
+        break;
+      case "ToggleImportant":
+        if (currentStatus !== undefined) onToggleImportant(threadId, currentStatus);
+        break;
+      case "ToggleResolved":
+        if (currentStatus !== undefined) onToggleResolved(threadId, currentStatus);
+        break;
+      case "Delete":
+        onDeleteThread(threadId, threadTitle);
+        break;
+      case "Edit":
+        // Placeholder for edit functionality
+        toast({ title: "Thread Action", description: `Edit functionality for "${threadTitle}" is coming soon.` });
+        console.log(`Edit thread ${threadId}`);
+        break;
+      default:
+        console.warn(`Unknown action: ${action}`);
+        toast({ title: "Unknown Action", description: `Action "${action}" is not recognized.`, variant: "destructive" });
+    }
   };
   
   if (!threads || threads.length === 0) {
-    return <p className="text-muted-foreground">No threads found.</p>;
+    return <Card className="p-4"><p className="text-muted-foreground">No threads found.</p></Card>;
   }
 
   return (
@@ -78,20 +115,22 @@ export function AdminThreadTable({ threads }: AdminThreadTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleThreadAction(thread.isLocked ? "Unlock" : "Lock", thread.id, thread.title)}>
+                    <DropdownMenuItem onClick={() => handleThreadAction("ToggleLock", thread.id, thread.title, thread.isLocked)}>
                         {thread.isLocked ? <Unlock className="mr-2 h-4 w-4 text-green-500"/> : <Lock className="mr-2 h-4 w-4 text-orange-500" />}
                         {thread.isLocked ? "Unlock" : "Lock"} Thread
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleThreadAction(thread.isImportant ? "Unmark" : "Mark", thread.id, thread.title)}>
+                    <DropdownMenuItem onClick={() => handleThreadAction("ToggleImportant", thread.id, thread.title, thread.isImportant)}>
                         <AlertTriangle className={`mr-2 h-4 w-4 ${thread.isImportant ? 'text-muted-foreground' : 'text-yellow-500'}`} />
                         {thread.isImportant ? "Unmark Important" : "Mark Important"}
                     </DropdownMenuItem>
-                     <DropdownMenuItem onClick={() => handleThreadAction(thread.isResolved ? "Unmark" : "Mark", thread.id, thread.title)}>
+                     <DropdownMenuItem onClick={() => handleThreadAction("ToggleResolved", thread.id, thread.title, thread.isResolved)}>
                         <CheckCircle className={`mr-2 h-4 w-4 ${thread.isResolved ? 'text-muted-foreground' : 'text-green-500'}`} />
                         {thread.isResolved ? "Unmark Resolved" : "Mark Resolved"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleThreadAction("Edit", thread.id, thread.title)}><Edit className="mr-2 h-4 w-4" />Edit Thread</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleThreadAction("Edit", thread.id, thread.title)} disabled> {/* Edit is disabled for now */}
+                        <Edit className="mr-2 h-4 w-4" />Edit Thread (Soon)
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleThreadAction("Delete", thread.id, thread.title)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                         <Trash2 className="mr-2 h-4 w-4" />Delete Thread
                     </DropdownMenuItem>
