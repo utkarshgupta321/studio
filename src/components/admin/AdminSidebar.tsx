@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, MessageSquareText, ShieldBan, Settings, LayoutList, Server as ServerIcon } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquareText, ShieldBan, Settings, LayoutList, Server as ServerIcon, ScanSearch } from "lucide-react"; // Added ScanSearch
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin/categories", label: "Category Management", icon: LayoutList },
   { href: "/admin/threads", label: "Thread Management", icon: MessageSquareText },
   { href: "/admin/users", label: "User Management", icon: Users },
+  { href: "/admin/moderate-content", label: "Moderate Content", icon: ScanSearch }, // Added Moderate Content
   // { href: "/admin/bans", label: "Ban Management", icon: ShieldBan },
   // { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockUsers, mockThreads, mockCategories, mockServers } from "@/lib/mock-data";
-import { Users, MessageSquareText, BarChart3, ShieldAlert, Server as ServerIcon } from "lucide-react";
+import { Users, MessageSquareText, BarChart3, ShieldAlert, Server as ServerIcon, ScanSearch } from "lucide-react"; // Added ScanSearch
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -65,7 +65,11 @@ export default function AdminDashboardPage() {
             <Link href="/admin/servers" passHref><Button className="w-full justify-start" variant="outline">Manage Servers</Button></Link>
             <Link href="/admin/categories" passHref><Button className="w-full justify-start" variant="outline">Manage Categories</Button></Link>
             <Link href="/admin/threads" passHref><Button className="w-full justify-start" variant="outline">Manage Threads</Button></Link>
-            <Button className="w-full justify-start" variant="outline" disabled>Moderate Content (Coming Soon)</Button>
+            <Link href="/admin/moderate-content" passHref>
+              <Button className="w-full justify-start" variant="outline">
+                <ScanSearch className="mr-2 h-4 w-4" /> Moderate Content
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
