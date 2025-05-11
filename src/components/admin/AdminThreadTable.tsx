@@ -16,6 +16,7 @@ import { MoreHorizontal, Lock, Unlock, Edit, Trash2, AlertTriangle, CheckCircle 
 import Link from "next/link";
 import { formatDistanceToNowStrict } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { Card } from "@/components/ui/card";
 
 interface AdminThreadTableProps {
   threads: Thread[];

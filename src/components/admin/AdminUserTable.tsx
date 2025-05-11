@@ -16,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ShieldBan, ShieldCheck, Edit, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { Card } from "@/components/ui/card";
 
 
 interface AdminUserTableProps {
