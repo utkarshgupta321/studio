@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 
 export interface User {
@@ -5,6 +6,7 @@ export interface User {
   username: string;
   email?: string; // For login, not necessarily public
   profileImageUrl?: string;
+  dataAiHint?: string; // For next/image data-ai-hint attribute
   joinDate: string; // ISO Date string
   isAdmin?: boolean;
   isBanned?: boolean;

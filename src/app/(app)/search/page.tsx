@@ -1,6 +1,7 @@
-"use client"; // This page needs to be a client component for useState and handling search query
 
-import { useState, useEffect, Suspense } from "react";
+"use client"; 
+
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { SearchInput } from "@/components/search/SearchInput";
 import { ThreadList } from "@/components/forums/ThreadList";
@@ -16,14 +17,7 @@ function SearchPageComponent() {
   const [searchResults, setSearchResults] = useState<Thread[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (initialQuery) {
-      handleSearch(initialQuery);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQuery]);
-
-  const handleSearch = (query: string) => {
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
     setIsLoading(true);
     // Update URL query parameter
@@ -44,7 +38,13 @@ function SearchPageComponent() {
       }
       setIsLoading(false);
     }, 500); // Simulate network delay
-  };
+  }, [setSearchQuery, setIsLoading, setSearchResults]); // mockThreads is stable and not included
+
+  useEffect(() => {
+    if (initialQuery) {
+      handleSearch(initialQuery);
+    }
+  }, [initialQuery, handleSearch]);
 
   return (
     <div className="space-y-8">
@@ -116,4 +116,3 @@ function SearchPageLoadingSkeleton() {
     </div>
   )
 }
-

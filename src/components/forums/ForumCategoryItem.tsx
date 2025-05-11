@@ -1,3 +1,4 @@
+
 import type { ForumCategory } from "@/lib/types";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +24,7 @@ export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
           </Link>
           <CardDescription className="mt-1 text-sm">{category.description}</CardDescription>
         </div>
-        <Link href={`/forums/${category.id}`} passHref legacyBehavior>
+        <Link href={`/forums/${category.id}`} passHref asChild>
             <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                 <ArrowRight className="h-5 w-5" />
             </Button>
