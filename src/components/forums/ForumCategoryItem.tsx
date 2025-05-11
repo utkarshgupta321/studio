@@ -3,14 +3,15 @@ import type { ForumCategory } from "@/lib/types";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MessageSquare, Edit3 } from "lucide-react"; // Edit3 for posts icon
+import { ArrowRight, MessageSquare, Edit3, Folder } from "lucide-react"; // Edit3 for posts icon, Folder as default
+import { getLucideIcon } from "@/lib/icon-map";
 
 interface ForumCategoryItemProps {
   category: ForumCategory;
 }
 
 export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
-  const CategoryIcon = category.icon || MessageSquare;
+  const CategoryIcon = getLucideIcon(category.iconName) || Folder;
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200 ease-in-out">
@@ -24,11 +25,11 @@ export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
           </Link>
           <CardDescription className="mt-1 text-sm">{category.description}</CardDescription>
         </div>
-        <Button variant="ghost" size="icon" className="hidden sm:inline-flex" asChild>
-          <Link href={`/forums/${category.id}`}>
-            <ArrowRight className="h-5 w-5" />
-          </Link>
-        </Button>
+        <Link href={`/forums/${category.id}`} passHref legacyBehavior>
+            <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
+                <ArrowRight className="h-5 w-5" />
+            </Button>
+        </Link>
       </CardHeader>
       <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground pt-0">
         <div className="flex items-center space-x-2">
@@ -56,4 +57,3 @@ export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
     </Card>
   );
 }
-

@@ -56,6 +56,12 @@ export default function AdminServersPage() {
       const originalName = mockServers[serverIndex].name;
       mockServers[serverIndex] = { ...mockServers[serverIndex], ...data };
       refreshServers();
+      // Also update serverName in categories that belong to this server
+      mockCategories.forEach(cat => {
+        if (cat.serverId === data.id) {
+          cat.serverName = data.name;
+        }
+      });
       toast({ title: "Server Updated", description: `Server "${originalName}" has been updated to "${data.name}".` });
     } else {
       toast({ title: "Update Failed", description: "Server not found for update.", variant: "destructive" });

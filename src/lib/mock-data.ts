@@ -52,7 +52,7 @@ export let mockThreads: Thread[] = [
     id: 'thread1',
     title: 'New Player Guide & FAQ',
     author: mockUsers[0],
-    categoryId: 'general', // Belongs to 'general' category in 'server1'
+    categoryId: 'general-s1', // Belongs to 'general' category in 'server1'
     createdAt: '2023-05-01T09:00:00Z',
     posts: [mockPosts[0], mockPosts[1], mockPosts[2]],
     viewCount: 1250,
@@ -65,7 +65,7 @@ export let mockThreads: Thread[] = [
     id: 'thread2',
     title: 'Best Armored Vehicles for Missions?',
     author: mockUsers[0],
-    categoryId: 'gameplay', // Belongs to 'gameplay' category in 'server1'
+    categoryId: 'gameplay-s1', // Belongs to 'gameplay' category in 'server1'
     createdAt: '2023-05-02T11:30:00Z',
     posts: [mockPosts[3], mockPosts[4]],
     viewCount: 875,
@@ -78,7 +78,7 @@ export let mockThreads: Thread[] = [
     id: 'thread3',
     title: 'Looking for Heist Crew (PS5)',
     author: mockUsers[1],
-    categoryId: 'crews', // Belongs to 'crews' category in 'server1'
+    categoryId: 'crews-s1', // Belongs to 'crews' category in 'server1'
     createdAt: '2023-05-03T14:00:00Z',
     posts: [{ id: 'post3-1', author: mockUsers[1], content: 'Need 2 more for Pacific Standard. Mics required. Add FranklinClinton.', createdAt: '2023-05-03T14:00:00Z' }],
     viewCount: 300,
@@ -90,7 +90,7 @@ export let mockThreads: Thread[] = [
     id: 'thread4',
     title: 'Site Rules and Guidelines Update',
     author: mockUsers[0],
-    categoryId: 'announcements', // Belongs to 'announcements' category in 'server1'
+    categoryId: 'announcements-s1', // Belongs to 'announcements' category in 'server1'
     createdAt: '2023-04-28T10:00:00Z',
     posts: [{ id: 'post4-1', author: mockUsers[0], content: 'Please review the updated community guidelines. TL;DR: Be excellent to each other.', createdAt: '2023-04-28T10:00:00Z' }],
     viewCount: 5000,
@@ -104,7 +104,7 @@ export let mockThreads: Thread[] = [
     id: 'thread5',
     title: 'RP Server Introduction',
     author: mockUsers[0],
-    categoryId: 'rp-general', // Belongs to 'rp-general' category in 'server2'
+    categoryId: 'rp-general-s2', // Belongs to 'rp-general' category in 'server2'
     createdAt: '2023-06-01T10:00:00Z',
     posts: [{id: 'post5-1', author:mockUsers[0], content: 'Welcome to the RP Hub!', createdAt: '2023-06-01T10:00:00Z'}],
     viewCount: 100,
@@ -117,121 +117,114 @@ export let mockThreads: Thread[] = [
 
 export let mockCategories: ForumCategory[] = [
   { 
-    id: 'announcements', 
+    id: 'announcements-s1', 
     name: 'Announcements', 
     description: 'Official news and announcements.',
     serverId: 'server1',
     serverName: mockServers.find(s=>s.id === 'server1')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'announcements').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'announcements').reduce((sum, t) => sum + t.posts.length, 0),
-    lastThread: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] 
-        ? { id: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id, 
-            title: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title, 
-            authorName: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username, 
-            timestamp: mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'announcements').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+    threadsCount: mockThreads.filter(t => t.categoryId === 'announcements-s1').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'announcements-s1').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'announcements-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0] 
+        ? { id: mockThreads.filter(t => t.categoryId === 'announcements-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id, 
+            title: mockThreads.filter(t => t.categoryId === 'announcements-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title, 
+            authorName: mockThreads.filter(t => t.categoryId === 'announcements-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username, 
+            timestamp: mockThreads.filter(t => t.categoryId === 'announcements-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'announcements-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
           } 
         : undefined,
-    icon: ShieldCheck,
     iconName: 'ShieldCheck',
   },
   { 
-    id: 'general', 
+    id: 'general-s1', 
     name: 'General Discussion', 
     description: 'Talk about anything GTA 5 related.',
     serverId: 'server1',
     serverName: mockServers.find(s=>s.id === 'server1')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'general').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'general').reduce((sum, t) => sum + t.posts.length, 0),
-    lastThread: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-        ? { id: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
-            title: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
-            authorName: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
-            timestamp: mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+    threadsCount: mockThreads.filter(t => t.categoryId === 'general-s1').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'general-s1').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'general-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'general-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'general-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'general-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'general-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'general-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
           }
         : undefined,
-    icon: MessageSquare,
     iconName: 'MessageSquare',
   },
   { 
-    id: 'gameplay', 
+    id: 'gameplay-s1', 
     name: 'Gameplay & Strategy', 
     description: 'Discuss missions, heists, vehicles, and tactics.',
     serverId: 'server1',
     serverName: mockServers.find(s=>s.id === 'server1')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'gameplay').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'gameplay').reduce((sum, t) => sum + t.posts.length, 0),
-    lastThread: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-        ? { id: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
-            title: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
-            authorName: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
-            timestamp: mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'gameplay').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+    threadsCount: mockThreads.filter(t => t.categoryId === 'gameplay-s1').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'gameplay-s1').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'gameplay-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'gameplay-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'gameplay-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'gameplay-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'gameplay-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'gameplay-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
           }
         : undefined,
-    icon: Code,
     iconName: 'Code',
   },
   { 
-    id: 'crews', 
+    id: 'crews-s1', 
     name: 'Crews & Recruitment', 
     description: 'Find a crew or recruit members for your own.',
     serverId: 'server1',
     serverName: mockServers.find(s=>s.id === 'server1')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'crews').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'crews').reduce((sum, t) => sum + t.posts.length, 0),
-    lastThread: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-        ? { id: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
-            title: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
-            authorName: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
-            timestamp: mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'crews').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+    threadsCount: mockThreads.filter(t => t.categoryId === 'crews-s1').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'crews-s1').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'crews-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'crews-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'crews-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'crews-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'crews-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'crews-s1').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
           }
         : undefined,
-    icon: Users,
     iconName: 'Users',
   },
   { 
-    id: 'support', 
+    id: 'support-s1', 
     name: 'Technical Support', 
     description: 'Get help with game issues or site problems.',
     serverId: 'server1',
     serverName: mockServers.find(s=>s.id === 'server1')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'support').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'support').reduce((sum, t) => sum + t.posts.length, 0),
+    threadsCount: mockThreads.filter(t => t.categoryId === 'support-s1').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'support-s1').reduce((sum, t) => sum + t.posts.length, 0),
     lastThread: undefined,
-    icon: HelpCircle,
     iconName: 'HelpCircle',
   },
   { 
-    id: 'offtopic', 
+    id: 'offtopic-s1', 
     name: 'Off-Topic', 
     description: 'Discuss anything not related to GTA 5.',
     serverId: 'server1',
     serverName: mockServers.find(s=>s.id === 'server1')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'offtopic').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'offtopic').reduce((sum, t) => sum + t.posts.length, 0),
+    threadsCount: mockThreads.filter(t => t.categoryId === 'offtopic-s1').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'offtopic-s1').reduce((sum, t) => sum + t.posts.length, 0),
     lastThread: undefined,
-    icon: Briefcase,
     iconName: 'Briefcase',
   },
   {
-    id: 'rp-general',
+    id: 'rp-general-s2',
     name: 'RP General Chat',
     description: 'General discussions for the Roleplay Hub server.',
     serverId: 'server2',
     serverName: mockServers.find(s=>s.id === 'server2')?.name,
-    threadsCount: mockThreads.filter(t => t.categoryId === 'rp-general').length,
-    postsCount: mockThreads.filter(t => t.categoryId === 'rp-general').reduce((sum, t) => sum + t.posts.length, 0),
-    lastThread: mockThreads.filter(t => t.categoryId === 'rp-general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
-        ? { id: mockThreads.filter(t => t.categoryId === 'rp-general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
-            title: mockThreads.filter(t => t.categoryId === 'rp-general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
-            authorName: mockThreads.filter(t => t.categoryId === 'rp-general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
-            timestamp: mockThreads.filter(t => t.categoryId === 'rp-general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'rp-general').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+    threadsCount: mockThreads.filter(t => t.categoryId === 'rp-general-s2').length,
+    postsCount: mockThreads.filter(t => t.categoryId === 'rp-general-s2').reduce((sum, t) => sum + t.posts.length, 0),
+    lastThread: mockThreads.filter(t => t.categoryId === 'rp-general-s2').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+        ? { id: mockThreads.filter(t => t.categoryId === 'rp-general-s2').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].id,
+            title: mockThreads.filter(t => t.categoryId === 'rp-general-s2').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].title,
+            authorName: mockThreads.filter(t => t.categoryId === 'rp-general-s2').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].author.username,
+            timestamp: mockThreads.filter(t => t.categoryId === 'rp-general-s2').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].lastReplyAt || mockThreads.filter(t => t.categoryId === 'rp-general-s2').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
           }
         : undefined,
-    icon: MessageSquare,
     iconName: 'MessageSquare',
   },
   {
-    id: 'rp-rules',
+    id: 'rp-rules-s2',
     name: 'RP Server Rules',
     description: 'Rules specific to the Roleplay Hub.',
     serverId: 'server2',
@@ -239,7 +232,6 @@ export let mockCategories: ForumCategory[] = [
     threadsCount: 0,
     postsCount: 0,
     lastThread: undefined,
-    icon: ShieldCheck,
     iconName: 'ShieldCheck',
   }
 ];
