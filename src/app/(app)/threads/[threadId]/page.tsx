@@ -1,19 +1,116 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import Link from "next/link";
+import { useRouter } from 'next/navigation'; // For redirecting after delete
 import { PostList } from "@/components/threads/PostList";
 import { CreatePostForm } from "@/components/threads/CreatePostForm";
-import { mockThreads, mockUsers, mockCategories } from "@/lib/mock-data"; // Added mockCategories
-import Link from "next/link";
+import { mockThreads, mockUsers, mockCategories } from "@/lib/mock-data";
+import type { Thread, User as CurrentUserType, EditThreadFormData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Lock, Unlock, Edit, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
+import { EditThreadDialog } from '@/components/admin/EditThreadDialog'; // Reusing admin dialog for simplicity
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+export default function ThreadPage({ params }: { params: { threadId: string } }) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [thread, setThread] = useState<Thread | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUserType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const foundThread = mockThreads.find(t => t.id === params.threadId);
+    const user = mockUsers[0]; // Simulate Michael (admin) as current user, or a regular user
+    
+    // To test as non-admin owner, uncomment below and comment out admin user
+    // const user = mockUsers[1]; // Simulate Franklin (non-admin)
+    // if (foundThread && user.id === foundThread.author.id) {
+    //   // This is Franklin, and he owns thread3.
+    // }
+
+    setThread(foundThread || null);
+    setCurrentUser(user);
+    setIsLoading(false);
+  }, [params.threadId]);
+
+  const category = thread ? mockCategories.find(c => c.id === thread.categoryId) : null;
+  const categoryLink = category ? `/forums/${thread?.categoryId}` : '/forums';
+  const categoryName = category ? category.name : "Category";
+  const backToText = category ? `Back to ${categoryName}` : "Back to Categories";
+
+  const canManageThread = currentUser?.isAdmin || (thread && currentUser?.id === thread.author.id);
+
+  const handleOpenEditDialog = () => {
+    if (thread) {
+      setIsEditDialogOpen(true);
+    }
+  };
+  const handleCloseEditDialog = () => setIsEditDialogOpen(false);
+
+  const handleSaveThreadEdit = (threadId: string, data: EditThreadFormData) => {
+    const threadIndex = mockThreads.findIndex(t => t.id === threadId);
+    if (threadIndex !== -1) {
+      const originalTitle = mockThreads[threadIndex].title;
+      mockThreads[threadIndex] = {
+        ...mockThreads[threadIndex],
+        title: data.title,
+        updatedAt: new Date().toISOString(),
+      };
+      setThread({ ...mockThreads[threadIndex] }); // Update local state to re-render
+      toast({ title: "Thread Updated", description: `Thread "${originalTitle}" has been updated to "${data.title}".` });
+    }
+    handleCloseEditDialog();
+  };
+
+  const handleDeleteThread = () => {
+    if (thread) {
+      const threadIndex = mockThreads.findIndex(t => t.id === thread.id);
+      if (threadIndex !== -1) {
+        const deletedTitle = mockThreads[threadIndex].title;
+        mockThreads.splice(threadIndex, 1);
+        toast({ title: "Thread Deleted", description: `Thread "${deletedTitle}" has been deleted.`, variant: "destructive" });
+        router.push(categoryLink); // Redirect to category page
+      }
+    }
+    setIsDeleteDialogOpen(false);
+  };
+
+  // Placeholder for admin-specific lock/unlock
+  const handleToggleLock = () => {
+     if (thread && currentUser?.isAdmin) {
+        const updatedThread = { ...thread, isLocked: !thread.isLocked };
+        const threadIndex = mockThreads.findIndex(t => t.id === thread.id);
+        if (threadIndex !== -1) {
+            mockThreads[threadIndex] = updatedThread;
+        }
+        setThread(updatedThread);
+        toast({ title: "Thread Action", description: `Thread ${updatedThread.isLocked ? 'locked' : 'unlocked'}.` });
+     }
+  };
 
 
-export default async function ThreadPage({ params }: { params: { threadId: string } }) {
-  const thread = mockThreads.find(t => t.id === params.threadId);
-  // Simulate current user for permissions
-  const currentUser = mockUsers[0]; // Assume Michael (admin) is logged in
+  if (isLoading) {
+    return <div>Loading thread...</div>; // Or a skeleton loader
+  }
 
   if (!thread) {
     return (
@@ -28,26 +125,43 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
     );
   }
 
-  const category = mockCategories.find(c => c.id === thread.categoryId);
-  const categoryLink = category ? `/forums/server/${category.serverId}` : '/forums'; // Link to server's categories
-  const categoryName = category ? category.name : "Category";
-  const backToText = category ? `Back to ${categoryName}` : "Back to Categories";
-
-
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/forums/${thread.categoryId}`} className="text-sm text-primary hover:underline flex items-center mb-2">
+        <Link href={categoryLink} className="text-sm text-primary hover:underline flex items-center mb-2">
           <ChevronLeft className="h-4 w-4 mr-1" /> {backToText}
         </Link>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">{thread.title}</h1>
-            {/* Admin/Mod actions placeholder */}
-            {currentUser?.isAdmin && (
+            {canManageThread && (
                  <div className="flex gap-2 mt-2 sm:mt-0">
-                    <Button variant="outline" size="sm">{thread.isLocked ? <Unlock className="mr-1 h-4 w-4"/> : <Lock className="mr-1 h-4 w-4"/>} {thread.isLocked ? "Unlock" : "Lock"}</Button>
-                    <Button variant="outline" size="sm"><Edit className="mr-1 h-4 w-4"/> Edit</Button>
-                    <Button variant="destructive" size="sm"><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
+                    {currentUser?.isAdmin && ( // Only admin can lock/unlock
+                        <Button variant="outline" size="sm" onClick={handleToggleLock}>
+                            {thread.isLocked ? <Unlock className="mr-1 h-4 w-4"/> : <Lock className="mr-1 h-4 w-4"/>} 
+                            {thread.isLocked ? "Unlock" : "Lock"}
+                        </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={handleOpenEditDialog}>
+                        <Edit className="mr-1 h-4 w-4"/> Edit
+                    </Button>
+                    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm"><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the thread
+                            &quot;{thread.title}&quot; and all its posts.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteThread}>Delete Thread</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                  </div>
             )}
         </div>
@@ -67,16 +181,29 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
       
       <Separator />
 
-      <PostList posts={thread.posts} currentUser={currentUser} />
+      <PostList posts={thread.posts} currentUser={currentUser} threadAuthorId={thread.author.id} />
 
-      {!thread.isLocked && <CreatePostForm threadId={thread.id} />}
+      {!thread.isLocked && currentUser && <CreatePostForm threadId={thread.id} />}
       {thread.isLocked && (
         <div className="text-center p-4 border rounded-md bg-card text-muted-foreground">
             <Lock className="h-6 w-6 mx-auto mb-2 text-yellow-500"/>
             This thread is locked. No new replies can be added.
         </div>
       )}
+      {!currentUser && !thread.isLocked && (
+         <div className="text-center p-4 border rounded-md bg-card text-muted-foreground">
+            Please <Link href="/login" className="text-primary hover:underline">log in</Link> to reply.
+        </div>
+      )}
+
+      {isEditDialogOpen && thread && (
+        <EditThreadDialog
+            thread={thread}
+            isOpen={isEditDialogOpen}
+            onClose={handleCloseEditDialog}
+            onSave={handleSaveThreadEdit}
+        />
+      )}
     </div>
   );
 }
-

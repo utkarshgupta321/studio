@@ -5,18 +5,32 @@ import { MessageCircle, ThumbsUp, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNowStrict } from 'date-fns';
 
-
 interface PostItemProps {
   post: Post;
   isOriginalPost?: boolean;
   currentUser?: User; // To check for edit/delete permissions
+  threadAuthorId?: string; // To check if current user is the thread author for editing OP
 }
 
-export function PostItem({ post, isOriginalPost = false, currentUser }: PostItemProps) {
+export function PostItem({ post, isOriginalPost = false, currentUser, threadAuthorId }: PostItemProps) {
   const { author, content, createdAt, updatedAt } = post;
-  // Mock permissions
-  const canEdit = currentUser?.id === author.id;
-  const canDelete = currentUser?.id === author.id || currentUser?.isAdmin;
+
+  // Determine edit/delete permissions
+  const isPostAuthor = currentUser?.id === author.id;
+  const isThreadAuthor = currentUser?.id === threadAuthorId;
+
+  // User can edit/delete their own post.
+  // If it's the original post, the thread author can also edit/delete it.
+  // Admin can always edit/delete.
+  const canEdit = currentUser?.isAdmin || isPostAuthor || (isOriginalPost && isThreadAuthor);
+  const canDelete = currentUser?.isAdmin || isPostAuthor || (isOriginalPost && isThreadAuthor);
+
+  // Placeholder actions - in a real app these would trigger modals/API calls
+  const handleEdit = () => console.log("Edit post:", post.id);
+  const handleDelete = () => console.log("Delete post:", post.id);
+  const handleReply = () => console.log("Reply to post:", post.id);
+  const handleLike = () => console.log("Like post:", post.id);
+
 
   return (
     <div className={`flex gap-4 p-4 rounded-lg ${isOriginalPost ? 'border-2 border-primary/50 bg-card' : 'border bg-card/80'}`}>
@@ -44,19 +58,19 @@ export function PostItem({ post, isOriginalPost = false, currentUser }: PostItem
           {content}
         </div>
         <div className="mt-4 flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={handleReply}>
             <MessageCircle className="h-4 w-4 mr-1" /> Reply
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={handleLike}>
             <ThumbsUp className="h-4 w-4 mr-1" /> Like (0)
           </Button>
           {canEdit && (
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleEdit}>
               <Edit className="h-4 w-4 mr-1" /> Edit
             </Button>
           )}
           {canDelete && (
-            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/80">
+            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/80" onClick={handleDelete}>
               <Trash2 className="h-4 w-4 mr-1" /> Delete
             </Button>
           )}

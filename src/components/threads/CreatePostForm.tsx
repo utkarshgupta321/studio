@@ -17,6 +17,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Send } from "lucide-react";
+import { mockUsers } from "@/lib/mock-data"; // Assuming mockUsers[0] is the logged in user or handle auth properly
+import { mockPosts } from "@/lib/mock-data"; // To add new post to the mock data
+import type { Thread } from "@/lib/types";
 
 const formSchema = z.object({
   content: z.string().min(10, { message: "Your reply must be at least 10 characters long." }).max(5000, { message: "Your reply cannot exceed 5000 characters." }),
@@ -29,6 +32,9 @@ interface CreatePostFormProps {
 
 export function CreatePostForm({ threadId, onPostCreated }: CreatePostFormProps) {
   const { toast } = useToast();
+  // For demo, assume a user is logged in. In a real app, this would come from auth context.
+  const currentUser = mockUsers[0]; 
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,14 +43,45 @@ export function CreatePostForm({ threadId, onPostCreated }: CreatePostFormProps)
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate API call
+    if (!currentUser) {
+        toast({
+            title: "Authentication Error",
+            description: "You must be logged in to post a reply.",
+            variant: "destructive",
+        });
+        return;
+    }
+
+    const newPost = {
+        id: `post-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        author: currentUser,
+        content: values.content,
+        createdAt: new Date().toISOString(),
+    };
+
+    const threadIndex = mockThreads.findIndex(t => t.id === threadId);
+    if (threadIndex !== -1) {
+        mockThreads[threadIndex].posts.push(newPost);
+        mockThreads[threadIndex].replyCount = mockThreads[threadIndex].posts.length -1; // -1 because original post is counted in posts array
+        mockThreads[threadIndex].lastReplyAt = newPost.createdAt;
+        mockThreads[threadIndex].lastReplyBy = currentUser;
+
+        // Also add to the global mockPosts array if needed elsewhere, though usually posts are part of a thread
+        // mockPosts.push(newPost); 
+    }
+    
     console.log("New post for thread", threadId, "submitted:", values);
     toast({
       title: "Reply Submitted",
-      description: "Your reply has been (simulated) posted.",
+      description: "Your reply has been posted.",
     });
     form.reset();
-    onPostCreated?.();
+    onPostCreated?.(); // This could trigger a re-fetch or re-render of the PostList
+  }
+  
+  // If no current user, don't render the form (or show a login prompt)
+  if (!currentUser) {
+    return null; 
   }
 
   return (
