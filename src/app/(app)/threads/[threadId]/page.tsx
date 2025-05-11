@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { use, useState, useEffect, useRef } from 'react'; 
@@ -89,7 +90,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
         updatedAt: new Date().toISOString(),
       };
       mockThreads[threadIndex] = updatedMockThread;
-      setThread({ ...updatedMockThread }); 
+      setThread({ ...updatedMockThread, posts: [...updatedMockThread.posts.map(p => ({...p}))] }); 
       toast({ title: "Thread Updated", description: `Thread "${originalTitle}" has been updated to "${data.title}".` });
     }
     handleCloseEditDialog();
@@ -113,7 +114,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
         const updatedThread = { ...thread, isLocked: !thread.isLocked };
         const threadIndex = mockThreads.findIndex(t => t.id === thread.id);
         if (threadIndex !== -1) {
-            mockThreads[threadIndex] = updatedThread;
+            mockThreads[threadIndex] = {...updatedThread, posts: [...updatedThread.posts.map(p => ({...p}))]};
         }
         setThread(updatedThread);
         toast({ title: "Thread Action", description: `Thread ${updatedThread.isLocked ? 'locked' : 'unlocked'}.` });
@@ -129,17 +130,23 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
       toast({ title: "Error", description: "Post not found.", variant: "destructive" });
       return;
     }
-    if (postIndex === 0) { 
+    if (postIndex === 0 && !currentUser?.isAdmin) { 
         toast({ title: "Action Not Allowed", description: "Cannot delete the original post this way. Delete the thread instead.", variant: "destructive" });
         return;
     }
+    // Admin can delete even the original post, which effectively deletes the thread.
+    if (postIndex === 0 && currentUser?.isAdmin) {
+        handleDeleteThread(); // Trigger thread deletion
+        return;
+    }
+
 
     const updatedPosts = thread.posts.filter(p => p.id !== postId);
     const updatedThreadData = { ...thread, posts: updatedPosts, replyCount: updatedPosts.length -1 };
 
     const mainThreadIndex = mockThreads.findIndex(t => t.id === thread.id);
     if (mainThreadIndex !== -1) {
-      mockThreads[mainThreadIndex] = updatedThreadData;
+      mockThreads[mainThreadIndex] = {...updatedThreadData, posts: [...updatedThreadData.posts.map(p => ({...p}))]};
        // Remove post from global mockPosts as well
       const globalPostIndex = mockPosts.findIndex(p => p.id === postId);
       if (globalPostIndex !== -1) {
@@ -151,10 +158,11 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
   };
 
   const handleOpenEditPostDialog = (postToEdit: Post) => {
-    if (postToEdit.id === thread?.posts[0]?.id) { 
-        toast({ title: "Info", description: "To edit the original post's content, use the 'Edit Thread' option (modifies title, future versions might allow content edit here too).", variant: "default" });
+    if (postToEdit.id === thread?.posts[0]?.id && !currentUser?.isAdmin) { 
+        toast({ title: "Info", description: "To edit the original post's content, use the 'Edit Thread' option (modifies title). Non-admins cannot edit original post content.", variant: "default" });
         return;
     }
+    // Admin can edit original post via this dialog
     setEditingPost(postToEdit);
     setIsEditPostDialogOpen(true);
   };
@@ -180,11 +188,11 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
     
     const mainThreadIndex = mockThreads.findIndex(t => t.id === thread.id);
     if (mainThreadIndex !== -1) {
-      mockThreads[mainThreadIndex].posts[postIndex] = updatedPost; // Update post in mockThreads
+      mockThreads[mainThreadIndex].posts[postIndex] = {...updatedPost}; // Update post in mockThreads
       // Update post in global mockPosts as well
       const globalPostIndex = mockPosts.findIndex(p => p.id === postId);
       if (globalPostIndex !== -1) {
-        mockPosts[globalPostIndex] = updatedPost;
+        mockPosts[globalPostIndex] = {...updatedPost};
       }
     }
     setThread(updatedThreadData);
@@ -206,23 +214,52 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
     if (postIndexInThread === -1) return;
 
     const targetPostInMockThreads = mockThreads[threadIndex].posts[postIndexInThread];
-    targetPostInMockThreads.likeCount = (targetPostInMockThreads.likeCount || 0) + 1;
+    
+    // Initialize likedBy and likeCount if they don't exist
+    if (!targetPostInMockThreads.likedBy) {
+      targetPostInMockThreads.likedBy = [];
+    }
+    if (targetPostInMockThreads.likeCount === undefined) {
+        targetPostInMockThreads.likeCount = 0;
+    }
 
+    const userHasLiked = targetPostInMockThreads.likedBy.includes(currentUser.id);
+
+    if (userHasLiked) {
+      // User has liked, so unlike
+      targetPostInMockThreads.likedBy = targetPostInMockThreads.likedBy.filter(id => id !== currentUser.id);
+      targetPostInMockThreads.likeCount = Math.max(0, targetPostInMockThreads.likeCount - 1); // Ensure not negative
+    } else {
+      // User has not liked, so like
+      targetPostInMockThreads.likedBy.push(currentUser.id);
+      targetPostInMockThreads.likeCount += 1;
+    }
+
+    // Update global mockPosts as well
     const postIndexInMockPosts = mockPosts.findIndex(p => p.id === postId);
     if (postIndexInMockPosts !== -1) {
-      mockPosts[postIndexInMockPosts].likeCount = (mockPosts[postIndexInMockPosts].likeCount || 0) + 1;
+      mockPosts[postIndexInMockPosts].likeCount = targetPostInMockThreads.likeCount;
+      mockPosts[postIndexInMockPosts].likedBy = [...targetPostInMockThreads.likedBy]; 
     }
     
     setThread(prevThread => {
       if (!prevThread) return null;
       const updatedPosts = prevThread.posts.map(p => 
-        p.id === postId ? { ...p, likeCount: (p.likeCount || 0) + 1 } : p
+        p.id === postId ? { 
+          ...p, 
+          likeCount: targetPostInMockThreads.likeCount,
+          likedBy: [...targetPostInMockThreads.likedBy] 
+        } : p
       );
       return { ...prevThread, posts: updatedPosts };
     });
 
-    toast({ title: "Post Liked!", description: "You've liked this post." });
+    toast({ 
+      title: userHasLiked ? "Post Unliked" : "Post Liked!", 
+      description: userHasLiked ? "You've unliked this post." : "You've liked this post." 
+    });
   };
+
 
   const handlePrepareReply = (postContent: string, authorUsername: string) => {
     if (!currentUser) {
@@ -367,3 +404,4 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
     </div>
   );
 }
+

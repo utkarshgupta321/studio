@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useEffect } from 'react'; // Added useEffect
@@ -71,7 +72,8 @@ export function CreatePostForm({ threadId, onPostCreated, initialContent }: Crea
         author: currentUser,
         content: values.content,
         createdAt: new Date().toISOString(),
-        likeCount: 0, // Initialize likeCount for new posts
+        likeCount: 0, 
+        likedBy: [], // Initialize likedBy for new posts
     };
 
     const threadIndex = mockThreads.findIndex(t => t.id === threadId);
@@ -134,3 +136,4 @@ export function CreatePostForm({ threadId, onPostCreated, initialContent }: Crea
     </Card>
   );
 }
+

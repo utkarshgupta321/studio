@@ -20,6 +20,7 @@ export interface Post {
   createdAt: string; // ISO Date string
   updatedAt?: string; // ISO Date string
   likeCount?: number;
+  likedBy?: string[]; // Array of user IDs who liked the post
 }
 
 export interface Thread {
@@ -81,4 +82,13 @@ export interface AddServerFormData {
 
 export interface EditServerFormData extends AddServerFormData {
   id: string;
+}
+
+export interface EditThreadFormData {
+  title: string;
+  // content?: string; // If original post content editing is added
+}
+
+export interface EditPostFormData {
+    content: string;
 }

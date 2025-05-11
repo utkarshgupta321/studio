@@ -1,8 +1,9 @@
 
+
 import type { Post, User } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, ThumbsUp, Edit, Trash2 } from "lucide-react";
+import { MessageCircle, ThumbsUp as ThumbsUpIcon, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNowStrict } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
@@ -43,13 +44,14 @@ export function PostItem({
   const { toast } = useToast();
 
   const isPostAuthor = currentUser?.id === author.id;
+  const canEditThisPost = (isOriginalPost && currentUser?.isAdmin) || (!isOriginalPost && (currentUser?.isAdmin || isPostAuthor));
+  const canDeleteThisPost = (isOriginalPost && currentUser?.isAdmin) || (!isOriginalPost && (currentUser?.isAdmin || isPostAuthor));
 
-  const canEditThisPost = !isOriginalPost && (currentUser?.isAdmin || isPostAuthor);
-  const canDeleteThisPost = !isOriginalPost && (currentUser?.isAdmin || isPostAuthor);
+  const hasLiked = currentUser && post.likedBy?.includes(currentUser.id);
 
   const handleEdit = () => {
-    if (isOriginalPost) {
-      toast({ title: "Action Info", description: "To edit the original post, please use the 'Edit Thread' option for the entire thread.", variant: "default" });
+    if (isOriginalPost && !currentUser?.isAdmin) {
+      toast({ title: "Action Info", description: "To edit the original post's content, use the 'Edit Thread' option (this typically edits the title). Only admins can directly edit original post content here.", variant: "default" });
       return;
     }
     if (canEditThisPost && onEditPost) {
@@ -124,7 +126,7 @@ export function PostItem({
             <MessageCircle className="h-4 w-4 mr-1" /> Reply
           </Button>
           <Button variant="ghost" size="sm" onClick={handleLike}>
-            <ThumbsUp className="h-4 w-4 mr-1" /> Like ({post.likeCount || 0})
+            <ThumbsUpIcon className={`h-4 w-4 mr-1 ${hasLiked ? 'fill-primary text-primary' : ''}`} /> {hasLiked ? 'Unlike' : 'Like'} ({post.likeCount || 0})
           </Button>
           {canEditThisPost && (
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleEdit}>
@@ -143,6 +145,7 @@ export function PostItem({
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete this post.
+                    {isOriginalPost && " This is the original post; deleting it will delete the entire thread."}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -157,3 +160,4 @@ export function PostItem({
     </div>
   );
 }
+

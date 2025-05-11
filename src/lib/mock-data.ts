@@ -16,6 +16,7 @@ export let mockPosts: Post[] = [
     content: 'Hey everyone, just started playing GTA Online. Any tips for beginners?',
     createdAt: '2023-05-01T10:00:00Z',
     likeCount: 5,
+    likedBy: ['user1', 'user4'], // Example: Michael and Lester liked this
   },
   {
     id: 'post1-2',
@@ -23,6 +24,7 @@ export let mockPosts: Post[] = [
     content: 'Welcome! Best tip: grind contact missions or heists to make money fast. Don\'t trust anyone with a jetpack.',
     createdAt: '2023-05-01T10:05:00Z',
     likeCount: 12,
+    likedBy: ['user2', 'user3', 'user4'],
   },
   {
     id: 'post1-3',
@@ -30,6 +32,7 @@ export let mockPosts: Post[] = [
     content: 'I can help with heists. Add me: LesterCrest. We\'ll make some serious paper.',
     createdAt: '2023-05-01T10:15:00Z',
     likeCount: 8,
+    likedBy: ['user1', 'user2'],
   },
   {
     id: 'post2-1',
@@ -37,6 +40,7 @@ export let mockPosts: Post[] = [
     content: 'What\'s the best armored vehicle for missions these days? Kuruma still good?',
     createdAt: '2023-05-02T12:00:00Z',
     likeCount: 7,
+    likedBy: [],
   },
   {
     id: 'post2-2',
@@ -44,6 +48,7 @@ export let mockPosts: Post[] = [
     content: 'Kuruma is solid for PVE. For PVP, maybe Insurgent Pick-Up Custom or Nightshark.',
     createdAt: '2023-05-02T12:10:00Z',
     likeCount: 9,
+    likedBy: [],
   },
 ];
 
@@ -85,7 +90,7 @@ export let mockThreads: Thread[] = [
     author: mockUsers[1],
     categoryId: 'crews-s1', // Belongs to 'crews' category in 'server1'
     createdAt: '2023-05-03T14:00:00Z',
-    posts: [{ id: 'post3-1', author: mockUsers[1], content: 'Need 2 more for Pacific Standard. Mics required. Add FranklinClinton.', createdAt: '2023-05-03T14:00:00Z', likeCount: 3 }],
+    posts: [{ id: 'post3-1', author: mockUsers[1], content: 'Need 2 more for Pacific Standard. Mics required. Add FranklinClinton.', createdAt: '2023-05-03T14:00:00Z', likeCount: 3, likedBy: [] }],
     viewCount: 300,
     replyCount: 0,
     lastReplyAt: '2023-05-03T14:00:00Z',
@@ -97,7 +102,7 @@ export let mockThreads: Thread[] = [
     author: mockUsers[0],
     categoryId: 'announcements-s1', // Belongs to 'announcements' category in 'server1'
     createdAt: '2023-04-28T10:00:00Z',
-    posts: [{ id: 'post4-1', author: mockUsers[0], content: 'Please review the updated community guidelines. TL;DR: Be excellent to each other.', createdAt: '2023-04-28T10:00:00Z', likeCount: 25 }],
+    posts: [{ id: 'post4-1', author: mockUsers[0], content: 'Please review the updated community guidelines. TL;DR: Be excellent to each other.', createdAt: '2023-04-28T10:00:00Z', likeCount: 25, likedBy: [] }],
     viewCount: 5000,
     replyCount: 0,
     isImportant: true,
@@ -111,7 +116,7 @@ export let mockThreads: Thread[] = [
     author: mockUsers[0],
     categoryId: 'rp-general-s2', // Belongs to 'rp-general' category in 'server2'
     createdAt: '2023-06-01T10:00:00Z',
-    posts: [{id: 'post5-1', author:mockUsers[0], content: 'Welcome to the RP Hub!', createdAt: '2023-06-01T10:00:00Z', likeCount: 10}],
+    posts: [{id: 'post5-1', author:mockUsers[0], content: 'Welcome to the RP Hub!', createdAt: '2023-06-01T10:00:00Z', likeCount: 10, likedBy: []}],
     viewCount: 100,
     replyCount: 0,
     isImportant: true,
@@ -240,3 +245,24 @@ export let mockCategories: ForumCategory[] = [
     iconName: 'ShieldCheck',
   }
 ];
+
+// Function to initialize likeCount and likedBy for posts that might be missing them
+// This is for robustness, especially if new posts are added without these fields.
+mockPosts.forEach(post => {
+  if (post.likeCount === undefined) {
+    post.likeCount = 0;
+  }
+  if (post.likedBy === undefined) {
+    post.likedBy = [];
+  }
+});
+mockThreads.forEach(thread => {
+  thread.posts.forEach(post => {
+    if (post.likeCount === undefined) {
+      post.likeCount = 0;
+    }
+    if (post.likedBy === undefined) {
+      post.likedBy = [];
+    }
+  });
+});
