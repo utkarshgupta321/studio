@@ -12,6 +12,7 @@ interface ForumCategoryItemProps {
 
 export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
   const CategoryIcon = getLucideIcon(category.iconName) || Folder;
+  const categoryLink = `/forums/${category.id}`; // Link to the thread list for this category
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200 ease-in-out">
@@ -20,12 +21,12 @@ export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
           <CategoryIcon className="h-6 w-6" />
         </div>
         <div className="flex-1">
-          <Link href={`/forums/${category.id}`} passHref>
+          <Link href={categoryLink} passHref>
             <CardTitle className="text-xl hover:underline cursor-pointer">{category.name}</CardTitle>
           </Link>
           <CardDescription className="mt-1 text-sm">{category.description}</CardDescription>
         </div>
-        <Link href={`/forums/${category.id}`} passHref legacyBehavior>
+        <Link href={categoryLink} passHref>
             <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                 <ArrowRight className="h-5 w-5" />
             </Button>

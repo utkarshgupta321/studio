@@ -1,6 +1,6 @@
 import { PostList } from "@/components/threads/PostList";
 import { CreatePostForm } from "@/components/threads/CreatePostForm";
-import { mockThreads, mockUsers } from "@/lib/mock-data";
+import { mockThreads, mockUsers, mockCategories } from "@/lib/mock-data"; // Added mockCategories
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Lock, Unlock, Edit, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
@@ -21,20 +21,24 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
         <h1 className="text-2xl font-bold mb-4">Thread Not Found</h1>
         <Link href="/forums" passHref>
           <Button variant="outline">
-            <ChevronLeft className="mr-2 h-4 w-4" /> Back to Forums
+            <ChevronLeft className="mr-2 h-4 w-4" /> Back to Servers
           </Button>
         </Link>
       </div>
     );
   }
 
-  const categoryLink = `/forums/${thread.categoryId}`;
+  const category = mockCategories.find(c => c.id === thread.categoryId);
+  const categoryLink = category ? `/forums/server/${category.serverId}` : '/forums'; // Link to server's categories
+  const categoryName = category ? category.name : "Category";
+  const backToText = category ? `Back to ${categoryName}` : "Back to Categories";
+
 
   return (
     <div className="space-y-6">
       <div>
-        <Link href={categoryLink} className="text-sm text-primary hover:underline flex items-center mb-2">
-          <ChevronLeft className="h-4 w-4 mr-1" /> Back to Category
+        <Link href={`/forums/${thread.categoryId}`} className="text-sm text-primary hover:underline flex items-center mb-2">
+          <ChevronLeft className="h-4 w-4 mr-1" /> {backToText}
         </Link>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">{thread.title}</h1>
@@ -75,3 +79,4 @@ export default async function ThreadPage({ params }: { params: { threadId: strin
     </div>
   );
 }
+
