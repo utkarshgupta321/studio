@@ -128,7 +128,7 @@ export function AdminThreadTable({
                         {thread.isResolved ? "Unmark Resolved" : "Mark Resolved"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleThreadAction("Edit", thread.id, thread.title)} disabled> {/* Edit is disabled for now */}
+                    <DropdownMenuItem onClick={() => handleThreadAction("Edit", thread.id, thread.title)}>
                         <Edit className="mr-2 h-4 w-4" />Edit Thread (Soon)
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleThreadAction("Delete", thread.id, thread.title)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
@@ -144,3 +144,4 @@ export function AdminThreadTable({
     </Card>
   );
 }
+
