@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { AdminServerTable } from "@/components/admin/AdminServerTable";
 import { AddServerDialog } from "@/components/admin/AddServerDialog";
-// import { EditServerDialog } from "@/components/admin/EditServerDialog"; // For future use
+import { EditServerDialog } from "@/components/admin/EditServerDialog"; 
 import { mockServers, mockCategories } from "@/lib/mock-data";
 import type { Server, AddServerFormData, EditServerFormData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -15,12 +15,16 @@ export default function AdminServersPage() {
   const { toast } = useToast();
   const [servers, setServers] = useState<Server[]>([...mockServers]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  // const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // For future use
-  // const [currentServerToEdit, setCurrentServerToEdit] = useState<Server | null>(null); // For future use
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); 
+  const [currentServerToEdit, setCurrentServerToEdit] = useState<Server | null>(null); 
 
   const refreshServers = useCallback(() => {
     setServers([...mockServers]);
   }, []);
+
+  useEffect(() => {
+    refreshServers();
+  }, [refreshServers]);
 
   const handleOpenAddDialog = () => setIsAddDialogOpen(true);
   const handleCloseAddDialog = () => setIsAddDialogOpen(false);
@@ -37,27 +41,27 @@ export default function AdminServersPage() {
     handleCloseAddDialog();
   };
 
-  // const handleOpenEditDialog = (server: Server) => { // For future use
-  //   setCurrentServerToEdit(server);
-  //   setIsEditDialogOpen(true);
-  // };
-  // const handleCloseEditDialog = () => { // For future use
-  //   setCurrentServerToEdit(null);
-  //   setIsEditDialogOpen(false);
-  // };
+  const handleOpenEditDialog = (server: Server) => { 
+    setCurrentServerToEdit(server);
+    setIsEditDialogOpen(true);
+  };
+  const handleCloseEditDialog = () => { 
+    setCurrentServerToEdit(null);
+    setIsEditDialogOpen(false);
+  };
 
-  // const handleUpdateServer = (data: EditServerFormData) => { // For future use
-  //   const serverIndex = mockServers.findIndex(s => s.id === data.id);
-  //   if (serverIndex !== -1) {
-  //     const originalName = mockServers[serverIndex].name;
-  //     mockServers[serverIndex] = { ...mockServers[serverIndex], ...data };
-  //     refreshServers();
-  //     toast({ title: "Server Updated", description: `Server "${originalName}" has been updated to "${data.name}".` });
-  //   } else {
-  //     toast({ title: "Update Failed", description: "Server not found for update.", variant: "destructive" });
-  //   }
-  //   handleCloseEditDialog();
-  // };
+  const handleUpdateServer = (data: EditServerFormData) => { 
+    const serverIndex = mockServers.findIndex(s => s.id === data.id);
+    if (serverIndex !== -1) {
+      const originalName = mockServers[serverIndex].name;
+      mockServers[serverIndex] = { ...mockServers[serverIndex], ...data };
+      refreshServers();
+      toast({ title: "Server Updated", description: `Server "${originalName}" has been updated to "${data.name}".` });
+    } else {
+      toast({ title: "Update Failed", description: "Server not found for update.", variant: "destructive" });
+    }
+    handleCloseEditDialog();
+  };
 
   const handleDeleteServer = (serverId: string, serverName: string) => {
     const categoriesInServer = mockCategories.filter(cat => cat.serverId === serverId).length;
@@ -81,9 +85,6 @@ export default function AdminServersPage() {
     }
   };
 
-  useState(() => {
-    refreshServers();
-  });
 
   return (
     <div className="space-y-6">
@@ -98,7 +99,7 @@ export default function AdminServersPage() {
       
       <AdminServerTable 
         servers={servers}
-        // onEditServer={handleOpenEditDialog} // For future use
+        onEditServer={handleOpenEditDialog} 
         onDeleteServer={handleDeleteServer}
       />
 
@@ -108,14 +109,14 @@ export default function AdminServersPage() {
         onSave={handleAddServer}
       />
 
-      {/* {currentServerToEdit && ( // For future use
+      {currentServerToEdit && ( 
         <EditServerDialog
           server={currentServerToEdit}
           isOpen={isEditDialogOpen}
           onClose={handleCloseEditDialog}
           onSave={handleUpdateServer}
         />
-      )} */}
+      )}
     </div>
   );
 }

@@ -11,17 +11,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, ServerIcon as ServerLucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface AdminServerTableProps {
   servers: Server[];
-  // onEditServer: (server: Server) => void; // For future use
+  onEditServer: (server: Server) => void; 
   onDeleteServer: (serverId: string, serverName: string) => void;
 }
 
-export function AdminServerTable({ servers, /* onEditServer, */ onDeleteServer }: AdminServerTableProps) {
+export function AdminServerTable({ servers, onEditServer, onDeleteServer }: AdminServerTableProps) {
   if (!servers || servers.length === 0) {
     return <Card className="p-4"><p className="text-muted-foreground">No servers found.</p></Card>;
   }
@@ -55,9 +55,10 @@ export function AdminServerTable({ servers, /* onEditServer, */ onDeleteServer }
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    {/* <DropdownMenuItem onClick={() => onEditServer(server)}>
+                    <DropdownMenuItem onClick={() => onEditServer(server)}>
                       <Edit className="mr-2 h-4 w-4" />Edit Server
-                    </DropdownMenuItem> */}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => onDeleteServer(server.id, server.name)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                       <Trash2 className="mr-2 h-4 w-4" />Delete Server
                     </DropdownMenuItem>
