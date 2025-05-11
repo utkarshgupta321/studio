@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Gamepad2, Home, Menu, Search as SearchIcon, ShieldCheck, Users } from "lucide-react";
 import { UserNav } from "./UserNav";
+import { ThemeToggle } from "./ThemeToggle"; // Import ThemeToggle
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
   <Link href={href} passHref>
@@ -72,10 +73,10 @@ export function Header() {
               className="hidden md:inline-flex h-9"
             />
           </div> */}
+          <ThemeToggle /> {/* Add ThemeToggle here */}
           <UserNav />
         </div>
       </div>
     </header>
   );
 }
-
