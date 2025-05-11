@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,9 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Send } from "lucide-react";
-import { mockUsers } from "@/lib/mock-data"; // Assuming mockUsers[0] is the logged in user or handle auth properly
-import { mockPosts } from "@/lib/mock-data"; // To add new post to the mock data
-import type { Thread } from "@/lib/types";
+import { mockUsers, mockThreads } from "@/lib/mock-data"; // Import mockThreads
+import type { Thread } from "@/lib/types"; // Thread type might not be directly used here, but good for context
 
 const formSchema = z.object({
   content: z.string().min(10, { message: "Your reply must be at least 10 characters long." }).max(5000, { message: "Your reply cannot exceed 5000 characters." }),
@@ -119,3 +119,4 @@ export function CreatePostForm({ threadId, onPostCreated }: CreatePostFormProps)
     </Card>
   );
 }
+
