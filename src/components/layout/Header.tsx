@@ -21,7 +21,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Gamepad2 className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block">
-              GTA5Grand Lite
+              GTA V Galaxy RolePlay
             </span>
           </Link>
           <nav className="flex items-center gap-2 text-sm">
@@ -50,7 +50,7 @@ export function Header() {
           <SheetContent side="left" className="pr-0 bg-background w-[280px]">
             <Link href="/" className="flex items-center space-x-2 p-4 border-b">
               <Gamepad2 className="h-6 w-6 text-primary" />
-              <span className="font-bold">GTA5Grand Lite</span>
+              <span className="font-bold">GTA V Galaxy RolePlay</span>
             </Link>
             <div className="space-y-2 p-4">
               <NavLink href="/forums">
@@ -78,3 +78,4 @@ export function Header() {
     </header>
   );
 }
+

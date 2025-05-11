@@ -11,9 +11,9 @@ export default function Home() {
           <div className="inline-block p-4 bg-primary rounded-lg mb-4">
             <Gamepad2 className="h-16 w-16 text-primary-foreground" />
           </div>
-          <CardTitle className="text-4xl font-bold">Welcome to GTA5Grand Forum Lite</CardTitle>
+          <CardTitle className="text-4xl font-bold">Welcome to GTA V Galaxy RolePlay</CardTitle>
           <CardDescription className="text-lg text-muted-foreground mt-2">
-            Your go-to place for all things GTA 5. Discuss strategies, find crews, and get support.
+            Your go-to place for all things GTA V Roleplay. Discuss strategies, find communities, and get support.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-4 justify-center p-6">
@@ -38,8 +38,9 @@ export default function Home() {
         </CardContent>
       </Card>
       <p className="mt-8 text-sm text-muted-foreground">
-        GTA5Grand Forum Lite - A simplified experience of your favorite GTA forum.
+        GTA V Galaxy RolePlay - Your ultimate GTA V Roleplay destination.
       </p>
     </div>
   );
 }
+

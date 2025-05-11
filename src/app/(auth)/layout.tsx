@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className="absolute top-4 left-4">
         <Link href="/" className="flex items-center space-x-2 text-foreground hover:text-primary">
           <Gamepad2 className="h-8 w-8" />
-          <span className="font-semibold text-lg">GTA5Grand Lite</span>
+          <span className="font-semibold text-lg">GTA V Galaxy RolePlay</span>
         </Link>
       </div>
       <div className="w-full max-w-md">
@@ -19,3 +19,4 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
