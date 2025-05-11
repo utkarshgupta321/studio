@@ -24,6 +24,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { format, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface EditUserDialogProps {
   user: User;
@@ -37,14 +42,10 @@ const editUserSchema = z.object({
   email: z.string().email("Invalid email address.").optional().or(z.literal('')),
   isAdmin: z.boolean().default(false),
   isBanned: z.boolean().default(false),
-  banEndDate: z.string().optional().nullable(), // Expects YYYY-MM-DD string from input type="date" or null
+  banEndDate: z.date().optional().nullable(),
 }).refine(data => {
   if (data.isBanned && !data.banEndDate) {
-    return false; // If banned, banEndDate is required
-  }
-  if (!data.isBanned && data.banEndDate) {
-      // Optionally clear banEndDate if not banned, or handle as per requirements
-      // For now, this condition is fine as banEndDate can be present but ignored if not banned.
+    return false; 
   }
   return true;
 }, {
@@ -71,21 +72,21 @@ export function EditUserDialog({ user, isOpen, onClose, onSave }: EditUserDialog
         email: user.email || '',
         isAdmin: user.isAdmin || false,
         isBanned: user.isBanned || false,
-        banEndDate: user.banEndDate ? new Date(user.banEndDate).toISOString().split('T')[0] : null,
+        banEndDate: user.banEndDate ? new Date(user.banEndDate) : null,
       });
     }
-  }, [user, form, isOpen]); // Rerun when isOpen changes to ensure reset on dialog open
+  }, [user, form, isOpen]);
 
   const watchedIsBanned = form.watch("isBanned");
 
   function onSubmit(values: z.infer<typeof editUserSchema>) {
     const updatedUserData: User = {
-      ...user, // Preserve ID and other non-editable fields like joinDate
+      ...user,
       username: values.username,
       email: values.email || undefined,
       isAdmin: values.isAdmin,
       isBanned: values.isBanned,
-      banEndDate: values.isBanned && values.banEndDate ? new Date(values.banEndDate).toISOString() : undefined,
+      banEndDate: values.isBanned && values.banEndDate ? values.banEndDate.toISOString() : undefined,
     };
     onSave(updatedUserData);
   }
@@ -134,7 +135,7 @@ export function EditUserDialog({ user, isOpen, onClose, onSave }: EditUserDialog
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                   <div className="space-y-0.5">
                     <FormLabel>Administrator</FormLabel>
-                    <DialogDescription className="text-xs"> {/* Using DialogDescription for consistency, but could be FormDescription */}
+                    <DialogDescription className="text-xs">
                       Grant administrator privileges to this user.
                     </DialogDescription>
                   </div>
@@ -172,15 +173,39 @@ export function EditUserDialog({ user, isOpen, onClose, onSave }: EditUserDialog
                 control={form.control}
                 name="banEndDate"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>Ban End Date</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="date" 
-                        {...field} 
-                        value={field.value || ''} // Ensure input is controlled even if value is null
-                      />
-                    </FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ?? undefined}
+                          onSelect={(date) => field.onChange(date)}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0,0,0,0)) // Disable past dates
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
