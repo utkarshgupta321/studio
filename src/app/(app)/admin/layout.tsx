@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </SheetTrigger>
           <SheetContent side="left" className="pr-0 bg-card w-[280px]">
             <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold tracking-tight text-primary">Admin Panel</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-[hsl(var(--primary-text-light))] dark:text-primary">Admin Panel</h2>
             </div>
             <nav className="flex flex-col space-y-1 p-4">
                 <MobileAdminNavItem href="/admin"><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard</MobileAdminNavItem>

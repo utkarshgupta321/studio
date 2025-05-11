@@ -33,7 +33,7 @@ export function ThreadListItem({ thread }: ThreadListItemProps) {
         </div>
         <div className="text-xs text-muted-foreground flex items-center gap-1 mb-2 sm:mb-0">
           <UserCircle className="h-3 w-3" />
-          <span>Started by <Link href={`/profile/${author.id}`} className="text-primary hover:underline">{author.username}</Link></span>
+          <span>Started by <Link href={`/profile/${author.id}`} className="text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline">{author.username}</Link></span>
           <span>• {formatDistanceToNowStrict(new Date(thread.createdAt))} ago</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ export function ThreadListItem({ thread }: ThreadListItemProps) {
         </div>
         {thread.lastReplyAt && thread.lastReplyBy && (
           <div className="text-xs text-right sm:text-left mt-1 sm:mt-0 truncate">
-            <p className="truncate">Last reply by <Link href={`/profile/${thread.lastReplyBy.id}`} className="text-primary hover:underline">{thread.lastReplyBy.username}</Link></p>
+            <p className="truncate">Last reply by <Link href={`/profile/${thread.lastReplyBy.id}`} className="text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline">{thread.lastReplyBy.username}</Link></p>
             <p>{formatDistanceToNowStrict(new Date(thread.lastReplyAt))} ago</p>
           </div>
         )}

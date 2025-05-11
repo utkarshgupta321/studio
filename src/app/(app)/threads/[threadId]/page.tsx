@@ -297,7 +297,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
   return (
     <div className="space-y-6">
       <div>
-        <Link href={categoryLink} className="text-sm text-primary hover:underline flex items-center mb-2">
+        <Link href={categoryLink} className="text-sm text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline flex items-center mb-2">
           <ChevronLeft className="h-4 w-4 mr-1" /> {backToText}
         </Link>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -339,7 +339,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
                 <AvatarImage src={thread.author.profileImageUrl} alt={thread.author.username} data-ai-hint={thread.author.dataAiHint || "profile icon"} />
                 <AvatarFallback>{thread.author.username.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span>By <Link href={`/profile/${thread.author.id}`} className="text-primary hover:underline">{thread.author.username}</Link></span>
+            <span>By <Link href={`/profile/${thread.author.id}`} className="text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline">{thread.author.username}</Link></span>
             <span>•</span>
             <span>{format(new Date(thread.createdAt), "PPP p")}</span>
             {thread.isImportant && <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600"><AlertTriangle className="h-3 w-3 mr-1" />Important</Badge>}
@@ -380,7 +380,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
       )}
       {!currentUser && !thread.isLocked && (
          <div className="text-center p-4 border rounded-md bg-card text-muted-foreground mt-8">
-            Please <Link href="/login" className="text-primary hover:underline">log in</Link> to reply.
+            Please <Link href="/login" className="text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline">log in</Link> to reply.
         </div>
       )}
 

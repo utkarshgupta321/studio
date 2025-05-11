@@ -106,7 +106,7 @@ export function PostItem({
             </Avatar>
         </Link>
         <Link href={`/profile/${author.id}`} passHref>
-            <p className="font-semibold text-primary hover:underline text-center truncate w-full">{author.username}</p>
+            <p className="font-semibold text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline text-center truncate w-full">{author.username}</p>
         </Link>
         <p className="text-xs text-muted-foreground">{author.isAdmin ? "Admin" : "Member"}</p>
         <p className="text-xs text-muted-foreground mt-1">Joined: {new Date(author.joinDate).toLocaleDateString()}</p>
@@ -129,7 +129,7 @@ export function PostItem({
             <ThumbsUpIcon className={`h-4 w-4 mr-1 ${hasLiked ? 'fill-primary text-primary' : ''}`} /> {hasLiked ? 'Unlike' : 'Like'} ({post.likeCount || 0})
           </Button>
           {canEditThisPost && (
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleEdit}>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-[hsl(var(--primary-text-light))] dark:hover:text-primary" onClick={handleEdit}>
               <Edit className="h-4 w-4 mr-1" /> Edit
             </Button>
           )}

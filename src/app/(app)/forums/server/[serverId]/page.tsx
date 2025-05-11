@@ -27,7 +27,7 @@ export default async function ServerCategoriesPage({ params }: { params: { serve
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <Link href="/forums" className="text-sm text-primary hover:underline flex items-center mb-1">
+          <Link href="/forums" className="text-sm text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline flex items-center mb-1">
             <ChevronLeft className="h-4 w-4 mr-1" /> All Servers
           </Link>
           <h1 className="text-3xl font-bold tracking-tight flex items-center">

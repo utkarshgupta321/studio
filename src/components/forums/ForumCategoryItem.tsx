@@ -44,7 +44,7 @@ export function ForumCategoryItem({ category }: ForumCategoryItemProps) {
         {category.lastThread ? (
           <div className="sm:col-span-3 truncate">
             <p className="font-medium">Last Thread:</p>
-            <Link href={`/threads/${category.lastThread.id}`} className="text-primary hover:underline truncate block">
+            <Link href={`/threads/${category.lastThread.id}`} className="text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline truncate block">
               {category.lastThread.title}
             </Link>
             <p className="text-xs">by {category.lastThread.authorName} on {new Date(category.lastThread.timestamp).toLocaleDateString()}</p>

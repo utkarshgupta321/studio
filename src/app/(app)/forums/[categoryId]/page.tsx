@@ -39,7 +39,7 @@ export default async function CategoryPage({ params }: { params: { categoryId: s
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <Link href={serverCategoryListLink} className="text-sm text-primary hover:underline flex items-center mb-1">
+          <Link href={serverCategoryListLink} className="text-sm text-[hsl(var(--primary-text-light))] dark:text-primary hover:underline flex items-center mb-1">
             <ChevronLeft className="h-4 w-4 mr-1" /> Back to Categories in {category.serverName || 'Server'}
           </Link>
           <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
@@ -52,7 +52,7 @@ export default async function CategoryPage({ params }: { params: { categoryId: s
           <AccordionTrigger
             className={cn(
               buttonVariants({ variant: "default", size: "lg" }),
-              "w-full justify-between hover:no-underline py-0 data-[state=closed]:rounded-lg data-[state=open]:rounded-t-lg" 
+              "w-full justify-between py-3 data-[state=closed]:rounded-lg data-[state=open]:rounded-t-lg data-[state=closed]:hover:no-underline data-[state=open]:hover:no-underline" 
             )}
           >
             <span className="flex items-center"> {/* Group custom icon and text */}

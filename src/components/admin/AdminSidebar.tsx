@@ -24,7 +24,7 @@ export function AdminSidebar() {
   return (
     <aside className="w-64 flex-shrink-0 border-r bg-card p-4 space-y-4 hidden md:block">
       <div>
-        <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight text-primary">
+        <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight text-[hsl(var(--sidebar-primary-text-light))] dark:text-sidebar-primary">
           Admin Panel
         </h2>
         <Separator className="my-2" />
@@ -39,7 +39,7 @@ export function AdminSidebar() {
                 variant={isActive ? "secondary" : "ghost"}
                 className={cn(
                   "w-full justify-start",
-                  isActive && "font-semibold text-primary"
+                  isActive && "font-semibold text-[hsl(var(--sidebar-primary-text-light))] dark:text-sidebar-primary"
                 )}
               >
                 <Icon className="mr-2 h-4 w-4" />

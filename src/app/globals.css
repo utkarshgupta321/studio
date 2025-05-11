@@ -13,8 +13,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 10% 10%;
 
-    --primary: 180 100% 50%; /* Cyan Accent #00f0ff */
+    --primary: 180 100% 50%; /* Cyan Accent #00f0ff - For icons, backgrounds etc. */
     --primary-foreground: 220 10% 10%; /* Dark text for high contrast on cyan */
+    --primary-text-light: 185 100% 37%; /* #00b0bd - For text content in light mode */
 
     --secondary: 210 20% 92%; /* Light Gray */
     --secondary-foreground: 220 10% 15%;
@@ -22,7 +23,7 @@
     --muted: 210 20% 85%;
     --muted-foreground: 220 10% 40%; /* Medium gray for muted text */
 
-    --accent: 180 100% 45%; /* Slightly darker Cyan Accent for hover states */
+    --accent: 180 100% 45%; /* Slightly darker Cyan Accent for hover states (based on original primary) */
     --accent-foreground: 220 10% 10%; /* Dark text for high contrast on cyan */
 
     --destructive: 0 70% 50%;
@@ -44,7 +45,8 @@
     /* Sidebar specific colors, aligned with the new theme */
     --sidebar-background: 210 20% 96%;
     --sidebar-foreground: 220 10% 15%;
-    --sidebar-primary: 180 100% 50%; /* Cyan Accent for sidebar */
+    --sidebar-primary: 180 100% 50%; /* Cyan Accent for sidebar icons/highlights */
+    --sidebar-primary-text-light: 185 100% 37%; /* For sidebar text that was primary in light mode */
     --sidebar-primary-foreground: 220 10% 10%; /* Dark text for sidebar primary */
     --sidebar-accent: 210 20% 90%;
     --sidebar-accent-foreground: 220 10% 10%;
@@ -62,7 +64,7 @@
     --popover: 220 10% 10%;
     --popover-foreground: 210 20% 95%;
 
-    --primary: 180 100% 50%; /* Cyan Accent #00f0ff */
+    --primary: 180 100% 50%; /* Cyan Accent #00f0ff - Used by dark:text-primary */
     --primary-foreground: 0 0% 10%; /* Dark text for high contrast on cyan */
 
     --secondary: 220 10% 20%; /* Medium Dark Gray */
@@ -91,7 +93,8 @@
     /* Sidebar specific colors for dark theme */
     --sidebar-background: 220 10% 10%;
     --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 180 100% 50%;
+    --sidebar-primary: 180 100% 50%; /* For sidebar icons/highlights in dark mode */
+    /* --sidebar-primary-text-light is not needed in dark mode, dark:text-primary will be used */
     --sidebar-primary-foreground: 0 0% 10%;
     --sidebar-accent: 220 10% 18%;
     --sidebar-accent-foreground: 210 20% 95%;
