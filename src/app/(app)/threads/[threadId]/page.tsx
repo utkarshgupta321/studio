@@ -1,8 +1,10 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
+// Add 'use' to imports
+import { use, useState, useEffect } from 'react'; 
 import Link from "next/link";
-import { useRouter } from 'next/navigation'; // For redirecting after delete
+import { useRouter } from 'next/navigation';
 import { PostList } from "@/components/threads/PostList";
 import { CreatePostForm } from "@/components/threads/CreatePostForm";
 import { mockThreads, mockUsers, mockCategories } from "@/lib/mock-data";
@@ -14,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import { EditThreadDialog } from '@/components/admin/EditThreadDialog'; // Reusing admin dialog for simplicity
+import { EditThreadDialog } from '@/components/admin/EditThreadDialog'; 
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,30 +29,41 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function ThreadPage({ params }: { params: { threadId: string } }) {
+// Define the expected shape of resolved params
+interface ResolvedPageParams {
+  threadId: string;
+}
+
+// Update prop definition to expect a Promise for params, or the resolved object.
+// Based on the warning, Next.js might be passing a Promise.
+export default function ThreadPage({ params: paramsInput }: { params: ResolvedPageParams | Promise<ResolvedPageParams> }) {
+  // Unwrap the promise using React.use if it's a promise, otherwise use directly.
+  // This handles cases where Next.js might pass params as a promise.
+  const params = (typeof (paramsInput as Promise<ResolvedPageParams>)?.then === 'function') 
+    ? use(paramsInput as Promise<ResolvedPageParams>) 
+    : paramsInput as ResolvedPageParams;
+  
+  const { threadId } = params; // Destructure after resolving/accessing
+
   const router = useRouter();
   const { toast } = useToast();
   const [thread, setThread] = useState<Thread | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUserType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // isLoading now primarily reflects the loading of thread data, after params are resolved.
+  const [isLoading, setIsLoading] = useState(true); 
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
-    const foundThread = mockThreads.find(t => t.id === params.threadId);
-    const user = mockUsers[0]; // Simulate Michael (admin) as current user, or a regular user
+    // params.threadId (now just threadId) is available and resolved
+    const foundThread = mockThreads.find(t => t.id === threadId); 
+    const user = mockUsers[0]; 
     
-    // To test as non-admin owner, uncomment below and comment out admin user
-    // const user = mockUsers[1]; // Simulate Franklin (non-admin)
-    // if (foundThread && user.id === foundThread.author.id) {
-    //   // This is Franklin, and he owns thread3.
-    // }
-
     setThread(foundThread || null);
     setCurrentUser(user);
     setIsLoading(false);
-  }, [params.threadId]);
+  }, [threadId]); // Dependency on the resolved threadId
 
   const category = thread ? mockCategories.find(c => c.id === thread.categoryId) : null;
   const categoryLink = category ? `/forums/${thread?.categoryId}` : '/forums';
@@ -66,8 +79,8 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
   };
   const handleCloseEditDialog = () => setIsEditDialogOpen(false);
 
-  const handleSaveThreadEdit = (threadId: string, data: EditThreadFormData) => {
-    const threadIndex = mockThreads.findIndex(t => t.id === threadId);
+  const handleSaveThreadEdit = (id: string, data: EditThreadFormData) => { 
+    const threadIndex = mockThreads.findIndex(t => t.id === id);
     if (threadIndex !== -1) {
       const originalTitle = mockThreads[threadIndex].title;
       mockThreads[threadIndex] = {
@@ -75,7 +88,7 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
         title: data.title,
         updatedAt: new Date().toISOString(),
       };
-      setThread({ ...mockThreads[threadIndex] }); // Update local state to re-render
+      setThread({ ...mockThreads[threadIndex] }); 
       toast({ title: "Thread Updated", description: `Thread "${originalTitle}" has been updated to "${data.title}".` });
     }
     handleCloseEditDialog();
@@ -88,13 +101,12 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
         const deletedTitle = mockThreads[threadIndex].title;
         mockThreads.splice(threadIndex, 1);
         toast({ title: "Thread Deleted", description: `Thread "${deletedTitle}" has been deleted.`, variant: "destructive" });
-        router.push(categoryLink); // Redirect to category page
+        router.push(categoryLink); 
       }
     }
     setIsDeleteDialogOpen(false);
   };
-
-  // Placeholder for admin-specific lock/unlock
+  
   const handleToggleLock = () => {
      if (thread && currentUser?.isAdmin) {
         const updatedThread = { ...thread, isLocked: !thread.isLocked };
@@ -107,9 +119,8 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
      }
   };
 
-
-  if (isLoading) {
-    return <div>Loading thread...</div>; // Or a skeleton loader
+  if (isLoading && !thread) { 
+    return <div>Loading thread...</div>; 
   }
 
   if (!thread) {
@@ -135,7 +146,7 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
             <h1 className="text-3xl font-bold tracking-tight">{thread.title}</h1>
             {canManageThread && (
                  <div className="flex gap-2 mt-2 sm:mt-0">
-                    {currentUser?.isAdmin && ( // Only admin can lock/unlock
+                    {currentUser?.isAdmin && ( 
                         <Button variant="outline" size="sm" onClick={handleToggleLock}>
                             {thread.isLocked ? <Unlock className="mr-1 h-4 w-4"/> : <Lock className="mr-1 h-4 w-4"/>} 
                             {thread.isLocked ? "Unlock" : "Lock"}
@@ -207,3 +218,4 @@ export default function ThreadPage({ params }: { params: { threadId: string } })
     </div>
   );
 }
+
