@@ -63,7 +63,7 @@ export function Footer() {
           </div>
 
           {/* Column 2: Social Links */}
-          <div className="flex justify-center md:justify-start items-center space-x-1.5"> {/* Reduced space-x */}
+          <div className="flex justify-center items-center space-x-2"> {/* Centered icons, slightly increased space */}
             {socialLinks.map((social) => {
               const Icon = social.icon;
               return (
@@ -73,9 +73,9 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.name}
-                  className="p-1 bg-muted/30 dark:bg-muted/50 hover:bg-muted rounded-sm transition-colors group" // Reduced padding, rounded-sm
+                  className="p-1.5 bg-muted/30 dark:bg-muted/50 hover:bg-muted rounded-md transition-colors group" // Slightly increased padding, rounded-md
                 >
-                  <Icon className="h-3 w-3 text-muted-foreground group-hover:text-primary" /> {/* Reduced icon size */}
+                  <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary" /> {/* Increased icon size */}
                 </a>
               );
             })}
