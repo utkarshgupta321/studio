@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { PostList } from "@/components/threads/PostList";
 import { CreatePostForm } from "@/components/threads/CreatePostForm";
 import { mockThreads, mockUsers, mockCategories } from "@/lib/mock-data";
-import type { Thread, User as CurrentUserType, EditThreadFormData } from "@/lib/types";
+import type { Thread, User as CurrentUserType, EditThreadFormData, Post } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Lock, Unlock, Edit, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
 import { EditThreadDialog } from '@/components/admin/EditThreadDialog'; 
+import { EditPostDialog, type EditPostFormData } from '@/components/threads/EditPostDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,10 +56,14 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [isEditPostDialogOpen, setIsEditPostDialogOpen] = useState(false);
+
+
   useEffect(() => {
     // params.threadId (now just threadId) is available and resolved
     const foundThread = mockThreads.find(t => t.id === threadId); 
-    const user = mockUsers[0]; 
+    const user = mockUsers[0]; // Simulate Michael (admin) as current user
     
     setThread(foundThread || null);
     setCurrentUser(user);
@@ -83,12 +88,13 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
     const threadIndex = mockThreads.findIndex(t => t.id === id);
     if (threadIndex !== -1) {
       const originalTitle = mockThreads[threadIndex].title;
-      mockThreads[threadIndex] = {
+      const updatedMockThread = {
         ...mockThreads[threadIndex],
         title: data.title,
         updatedAt: new Date().toISOString(),
       };
-      setThread({ ...mockThreads[threadIndex] }); 
+      mockThreads[threadIndex] = updatedMockThread;
+      setThread({ ...updatedMockThread }); 
       toast({ title: "Thread Updated", description: `Thread "${originalTitle}" has been updated to "${data.title}".` });
     }
     handleCloseEditDialog();
@@ -108,7 +114,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
   };
   
   const handleToggleLock = () => {
-     if (thread && currentUser?.isAdmin) {
+     if (thread && currentUser?.isAdmin) { // Only admin can lock/unlock threads
         const updatedThread = { ...thread, isLocked: !thread.isLocked };
         const threadIndex = mockThreads.findIndex(t => t.id === thread.id);
         if (threadIndex !== -1) {
@@ -116,8 +122,71 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
         }
         setThread(updatedThread);
         toast({ title: "Thread Action", description: `Thread ${updatedThread.isLocked ? 'locked' : 'unlocked'}.` });
+     } else if (thread && !currentUser?.isAdmin) {
+        toast({ title: "Permission Denied", description: "Only administrators can lock or unlock threads.", variant: "destructive" });
      }
   };
+
+  const handleDeletePost = (postId: string) => {
+    if (!thread) return;
+    const postIndex = thread.posts.findIndex(p => p.id === postId);
+    if (postIndex === -1) {
+      toast({ title: "Error", description: "Post not found.", variant: "destructive" });
+      return;
+    }
+    if (postIndex === 0) { // Original post
+        toast({ title: "Action Not Allowed", description: "Cannot delete the original post this way. Delete the thread instead.", variant: "destructive" });
+        return;
+    }
+
+    const updatedPosts = thread.posts.filter(p => p.id !== postId);
+    const updatedThreadData = { ...thread, posts: updatedPosts, replyCount: updatedPosts.length -1 };
+
+    const mainThreadIndex = mockThreads.findIndex(t => t.id === thread.id);
+    if (mainThreadIndex !== -1) {
+      mockThreads[mainThreadIndex] = updatedThreadData;
+    }
+    setThread(updatedThreadData);
+    toast({ title: "Post Deleted", description: "The post has been successfully deleted." });
+  };
+
+  const handleOpenEditPostDialog = (postToEdit: Post) => {
+    if (postToEdit.id === thread?.posts[0]?.id) { // Is Original Post
+        toast({ title: "Info", description: "To edit the original post's content, use the 'Edit Thread' option (modifies title, future versions might allow content edit here too).", variant: "default" });
+        return;
+    }
+    setEditingPost(postToEdit);
+    setIsEditPostDialogOpen(true);
+  };
+
+  const handleCloseEditPostDialog = () => {
+    setIsEditPostDialogOpen(false);
+    setEditingPost(null);
+  };
+
+  const handleSavePostEdit = (postId: string, data: EditPostFormData) => {
+    if (!thread) return;
+    const postIndex = thread.posts.findIndex(p => p.id === postId);
+    if (postIndex === -1) {
+      toast({ title: "Error", description: "Post not found for update.", variant: "destructive" });
+      return;
+    }
+
+    const updatedPost = { ...thread.posts[postIndex], content: data.content, updatedAt: new Date().toISOString() };
+    const updatedPosts = [...thread.posts];
+    updatedPosts[postIndex] = updatedPost;
+
+    const updatedThreadData = { ...thread, posts: updatedPosts };
+    
+    const mainThreadIndex = mockThreads.findIndex(t => t.id === thread.id);
+    if (mainThreadIndex !== -1) {
+      mockThreads[mainThreadIndex] = updatedThreadData;
+    }
+    setThread(updatedThreadData);
+    toast({ title: "Post Updated", description: "Your post has been successfully updated." });
+    handleCloseEditPostDialog();
+  };
+
 
   if (isLoading && !thread) { 
     return <div>Loading thread...</div>; 
@@ -145,7 +214,7 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">{thread.title}</h1>
             {canManageThread && (
-                 <div className="flex gap-2 mt-2 sm:mt-0">
+                 <div className="flex gap-2 mt-2 sm:mt-0 flex-wrap">
                     {currentUser?.isAdmin && ( 
                         <Button variant="outline" size="sm" onClick={handleToggleLock}>
                             {thread.isLocked ? <Unlock className="mr-1 h-4 w-4"/> : <Lock className="mr-1 h-4 w-4"/>} 
@@ -153,11 +222,11 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
                         </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={handleOpenEditDialog}>
-                        <Edit className="mr-1 h-4 w-4"/> Edit
+                        <Edit className="mr-1 h-4 w-4"/> Edit Title
                     </Button>
                     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm"><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
+                        <Button variant="destructive" size="sm"><Trash2 className="mr-1 h-4 w-4"/> Delete Thread</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
@@ -192,9 +261,19 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
       
       <Separator />
 
-      <PostList posts={thread.posts} currentUser={currentUser} threadAuthorId={thread.author.id} />
+      <PostList
+        posts={thread.posts}
+        currentUser={currentUser}
+        threadAuthorId={thread.author.id}
+        onDeletePost={handleDeletePost}
+        onEditPost={handleOpenEditPostDialog}
+      />
 
-      {!thread.isLocked && currentUser && <CreatePostForm threadId={thread.id} />}
+      {!thread.isLocked && currentUser && <CreatePostForm threadId={thread.id} onPostCreated={() => {
+          // Refresh thread data to show new post
+          const refreshedThread = mockThreads.find(t => t.id === threadId);
+          if(refreshedThread) setThread(refreshedThread);
+      }} />}
       {thread.isLocked && (
         <div className="text-center p-4 border rounded-md bg-card text-muted-foreground">
             <Lock className="h-6 w-6 mx-auto mb-2 text-yellow-500"/>
@@ -215,7 +294,15 @@ export default function ThreadPage({ params: paramsInput }: { params: ResolvedPa
             onSave={handleSaveThreadEdit}
         />
       )}
+
+      {editingPost && isEditPostDialogOpen && (
+        <EditPostDialog
+          post={editingPost}
+          isOpen={isEditPostDialogOpen}
+          onClose={handleCloseEditPostDialog}
+          onSave={handleSavePostEdit}
+        />
+      )}
     </div>
   );
 }
-

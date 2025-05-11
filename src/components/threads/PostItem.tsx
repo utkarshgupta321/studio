@@ -1,36 +1,81 @@
+
 import type { Post, User } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, ThumbsUp, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNowStrict } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PostItemProps {
   post: Post;
   isOriginalPost?: boolean;
-  currentUser?: User; // To check for edit/delete permissions
-  threadAuthorId?: string; // To check if current user is the thread author for editing OP
+  currentUser?: User | null;
+  threadAuthorId?: string;
+  onDeletePost?: (postId: string) => void;
+  onEditPost?: (post: Post) => void;
 }
 
-export function PostItem({ post, isOriginalPost = false, currentUser, threadAuthorId }: PostItemProps) {
+export function PostItem({
+  post,
+  isOriginalPost = false,
+  currentUser,
+  threadAuthorId,
+  onDeletePost,
+  onEditPost,
+}: PostItemProps) {
   const { author, content, createdAt, updatedAt } = post;
+  const { toast } = useToast();
 
-  // Determine edit/delete permissions
   const isPostAuthor = currentUser?.id === author.id;
-  const isThreadAuthor = currentUser?.id === threadAuthorId;
 
-  // User can edit/delete their own post.
-  // If it's the original post, the thread author can also edit/delete it.
-  // Admin can always edit/delete.
-  const canEdit = currentUser?.isAdmin || isPostAuthor || (isOriginalPost && isThreadAuthor);
-  const canDelete = currentUser?.isAdmin || isPostAuthor || (isOriginalPost && isThreadAuthor);
+  // Admin can do anything to non-original posts via these controls.
+  // Post author can edit/delete their own non-original posts.
+  // Original post (OP) edit/delete is typically handled at the thread level (Edit Thread, Delete Thread).
+  const canEditThisPost = !isOriginalPost && (currentUser?.isAdmin || isPostAuthor);
+  const canDeleteThisPost = !isOriginalPost && (currentUser?.isAdmin || isPostAuthor);
 
-  // Placeholder actions - in a real app these would trigger modals/API calls
-  const handleEdit = () => console.log("Edit post:", post.id);
-  const handleDelete = () => console.log("Delete post:", post.id);
-  const handleReply = () => console.log("Reply to post:", post.id);
-  const handleLike = () => console.log("Like post:", post.id);
+  const handleEdit = () => {
+    if (isOriginalPost) {
+      toast({ title: "Action Info", description: "To edit the original post, please use the 'Edit Thread' option for the entire thread.", variant: "default" });
+      return;
+    }
+    if (canEditThisPost && onEditPost) {
+      onEditPost(post);
+    } else if (canEditThisPost) {
+       toast({ title: "Edit Post", description: "Post editing dialog is not available.", variant: "default" });
+    } else {
+        toast({ title: "Permission Denied", description: "You do not have permission to edit this post.", variant: "destructive"});
+    }
+  };
 
+  const actualDeletePost = () => {
+     if (onDeletePost) {
+        onDeletePost(post.id);
+      } else {
+        console.error("onDeletePost handler not provided to PostItem");
+        toast({ title: "Error", description: "Could not delete post. Handler missing.", variant: "destructive" });
+      }
+  };
+
+  const handleReply = () => {
+    toast({ title: "Reply to Post", description: "Replying to specific posts is not yet implemented. Use the form at the bottom of the thread.", variant: "default" });
+  };
+
+  const handleLike = () => {
+    toast({ title: "Like Post", description: "Liking posts is not yet implemented.", variant: "default" });
+  };
 
   return (
     <div className={`flex gap-4 p-4 rounded-lg ${isOriginalPost ? 'border-2 border-primary/50 bg-card' : 'border bg-card/80'}`}>
@@ -57,22 +102,38 @@ export function PostItem({ post, isOriginalPost = false, currentUser, threadAuth
         <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap break-words">
           {content}
         </div>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-4 flex items-center gap-2 flex-wrap">
           <Button variant="ghost" size="sm" onClick={handleReply}>
             <MessageCircle className="h-4 w-4 mr-1" /> Reply
           </Button>
           <Button variant="ghost" size="sm" onClick={handleLike}>
             <ThumbsUp className="h-4 w-4 mr-1" /> Like (0)
           </Button>
-          {canEdit && (
+          {canEditThisPost && (
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={handleEdit}>
               <Edit className="h-4 w-4 mr-1" /> Edit
             </Button>
           )}
-          {canDelete && (
-            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/80" onClick={handleDelete}>
-              <Trash2 className="h-4 w-4 mr-1" /> Delete
-            </Button>
+          {canDeleteThisPost && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/80">
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this post.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={actualDeletePost}>Delete Post</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>

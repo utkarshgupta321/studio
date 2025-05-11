@@ -1,13 +1,16 @@
+
 import type { Post, User } from "@/lib/types";
 import { PostItem } from "./PostItem";
 
 interface PostListProps {
   posts: Post[];
-  currentUser?: User; // For edit/delete permissions
-  threadAuthorId?: string; // To know who owns the thread
+  currentUser?: User | null;
+  threadAuthorId?: string;
+  onDeletePost?: (postId: string) => void;
+  onEditPost?: (post: Post) => void; 
 }
 
-export function PostList({ posts, currentUser, threadAuthorId }: PostListProps) {
+export function PostList({ posts, currentUser, threadAuthorId, onDeletePost, onEditPost }: PostListProps) {
   if (!posts || posts.length === 0) {
     return <p className="text-muted-foreground">No posts in this thread yet.</p>;
   }
@@ -20,7 +23,9 @@ export function PostList({ posts, currentUser, threadAuthorId }: PostListProps) 
           post={post} 
           isOriginalPost={index === 0}
           currentUser={currentUser}
-          threadAuthorId={threadAuthorId} // Pass down threadAuthorId
+          threadAuthorId={threadAuthorId}
+          onDeletePost={onDeletePost}
+          onEditPost={onEditPost} 
         />
       ))}
     </div>
