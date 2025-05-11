@@ -98,7 +98,7 @@ export const availableIcons: Record<string, LucideIcon> = {
   ThumbsUp: LucideIcons.ThumbsUp,
   ToggleLeft: LucideIcons.ToggleLeft,
   ToggleRight: LucideIcons.ToggleRight,
-  Tool: LucideIcons.Tool,
+  PenTool: LucideIcons.PenTool,
   Trash2: LucideIcons.Trash2,
   TrendingDown: LucideIcons.TrendingDown,
   TrendingUp: LucideIcons.TrendingUp,
