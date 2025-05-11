@@ -1,23 +1,27 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminUserTable } from "@/components/admin/AdminUserTable";
 import { mockUsers } from "@/lib/mock-data";
 import type { User } from "@/lib/types";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 // Button, UserPlus, Download are commented out as they are not directly used for search functionality
 // but can be uncommented if "Add User" or "Export Users" features are implemented.
 // import { Button } from "@/components/ui/button";
 // import { UserPlus, Download } from "lucide-react";
 
 export default function AdminUsersPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers);
-
-  useEffect(() => {
-    const lowerCaseQuery = searchQuery.toLowerCase().trim();
+  // Initialize filteredUsers with a copy of mockUsers to allow modification
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([...mockUsers]);
+  
+  // Function to filter users based on query - memoized with useCallback
+  const filterUsers = useCallback((query: string) => {
+    const lowerCaseQuery = query.toLowerCase().trim();
     if (!lowerCaseQuery) {
-      setFilteredUsers(mockUsers); // If query is empty, show all users
+      setFilteredUsers([...mockUsers]); // Show all users if query is empty
       return;
     }
     const results = mockUsers.filter(user =>
@@ -25,11 +29,51 @@ export default function AdminUsersPage() {
       (user.email && user.email.toLowerCase().includes(lowerCaseQuery))
     );
     setFilteredUsers(results);
-  }, [searchQuery]); // Re-run effect when searchQuery changes
+  }, []); // mockUsers is a dependency; if it could change from outside, it should be in deps array
+
+  useEffect(() => {
+    filterUsers(searchQuery);
+  }, [searchQuery, filterUsers]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
+
+  const handleUserUpdate = (updatedUser: User) => {
+    const userIndex = mockUsers.findIndex(u => u.id === updatedUser.id);
+    if (userIndex !== -1) {
+      mockUsers[userIndex] = updatedUser; // Mutate the imported mockUsers array
+    }
+    filterUsers(searchQuery); // Re-filter the users list
+  };
+
+  const handleDeleteUser = (userId: string, username: string) => {
+    const userIndex = mockUsers.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      mockUsers.splice(userIndex, 1); // Remove from mockUsers
+    }
+    filterUsers(searchQuery); // Re-filter
+    toast({ title: "User Action", description: `Simulated deleting user: ${username}`, variant: "destructive" });
+  };
+
+  const handleBanUser = (userId: string, username: string) => {
+    const userIndex = mockUsers.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      mockUsers[userIndex] = { ...mockUsers[userIndex], isBanned: true, banEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() }; // Ban for 30 days
+    }
+    filterUsers(searchQuery);
+    toast({ title: "User Action", description: `Simulated banning user: ${username}` });
+  };
+
+  const handleUnbanUser = (userId: string, username: string) => {
+     const userIndex = mockUsers.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      mockUsers[userIndex] = { ...mockUsers[userIndex], isBanned: false, banEndDate: undefined };
+    }
+    filterUsers(searchQuery);
+    toast({ title: "User Action", description: `Simulated unbanning user: ${username}` });
+  };
+
 
   return (
     <div className="space-y-6">
@@ -49,7 +93,13 @@ export default function AdminUsersPage() {
         />
         {/* Add filters for status, role etc. if needed */}
       </div>
-      <AdminUserTable users={filteredUsers} />
+      <AdminUserTable 
+        users={filteredUsers} 
+        onUpdateUser={handleUserUpdate}
+        onDeleteUser={handleDeleteUser}
+        onBanUser={handleBanUser}
+        onUnbanUser={handleUnbanUser}
+      />
     </div>
   );
 }
