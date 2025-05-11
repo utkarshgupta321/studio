@@ -1,8 +1,9 @@
+
 import type { Thread } from "@/lib/types";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Eye, UserCircle, CheckCircle, AlertTriangle, Lock } from "lucide-react";
+import { MessageSquare, Eye, UserCircle, CheckCircle, AlertTriangle, Lock, AlertCircle } from "lucide-react"; // Added AlertCircle
 import { formatDistanceToNowStrict } from 'date-fns';
 
 
@@ -12,6 +13,8 @@ interface ThreadListItemProps {
 
 export function ThreadListItem({ thread }: ThreadListItemProps) {
   const { author } = thread;
+  const isDefaultStatus = !thread.isImportant && !thread.isLocked && !thread.isResolved;
+
   return (
     <div className="flex flex-col sm:flex-row items-start gap-4 p-4 border rounded-lg hover:bg-card/50 transition-colors">
       <Avatar className="h-10 w-10 hidden sm:block">
@@ -19,10 +22,11 @@ export function ThreadListItem({ thread }: ThreadListItemProps) {
         <AvatarFallback>{author.username.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           {thread.isImportant && <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600"><AlertTriangle className="h-3 w-3 mr-1" />Important</Badge>}
           {thread.isLocked && <Badge variant="secondary"><Lock className="h-3 w-3 mr-1" />Locked</Badge>}
           {thread.isResolved && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle className="h-3 w-3 mr-1" />Resolved</Badge>}
+          {isDefaultStatus && <Badge variant="outline" className="border-orange-500 text-orange-500"><AlertCircle className="mr-1 h-3 w-3" />Unresolved</Badge>}
           <Link href={`/threads/${thread.id}`} passHref>
             <h3 className="text-lg font-semibold hover:underline cursor-pointer">{thread.title}</h3>
           </Link>
@@ -54,3 +58,4 @@ export function ThreadListItem({ thread }: ThreadListItemProps) {
     </div>
   );
 }
+
