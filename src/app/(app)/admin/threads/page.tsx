@@ -26,13 +26,13 @@ export default function AdminThreadsPage() {
   const [filteredThreads, setFilteredThreads] = useState<Thread[]>(threads);
 
   // Function to filter threads based on query - memoized with useCallback
-  const filterThreads = useCallback((query: string, currentThreads: Thread[]) => {
+  const filterThreads = useCallback((query: string, currentThreadsToFilter: Thread[]) => {
     const lowerCaseQuery = query.toLowerCase().trim();
     if (!lowerCaseQuery) {
-      setFilteredThreads([...currentThreads]); // Show all threads if query is empty
+      setFilteredThreads([...currentThreadsToFilter]); // Show all threads if query is empty
       return;
     }
-    const results = currentThreads.filter(thread =>
+    const results = currentThreadsToFilter.filter(thread =>
       thread.title.toLowerCase().includes(lowerCaseQuery) ||
       (thread.posts && thread.posts.length > 0 && thread.posts[0].content.toLowerCase().includes(lowerCaseQuery))
     );
@@ -48,45 +48,56 @@ export default function AdminThreadsPage() {
     setSearchQuery(event.target.value);
   };
 
-  const updateThreadInList = (threadId: string, updates: Partial<Thread>): Thread[] => {
-    return threads.map(t => t.id === threadId ? { ...t, ...updates } : t);
-  };
-
   const handleToggleLock = (threadId: string, currentStatus: boolean) => {
-    const newThreads = updateThreadInList(threadId, { isLocked: !currentStatus });
-    setThreads(newThreads);
-    // Find the original mockThread to update it as well, so changes persist across navigations (for demo)
+    setThreads(prevThreads =>
+      prevThreads.map(t =>
+        t.id === threadId ? { ...t, isLocked: !currentStatus } : t
+      )
+    );
+    
     const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
-    if (mockThreadIndex !== -1) mockThreads[mockThreadIndex].isLocked = !currentStatus;
+    if (mockThreadIndex !== -1) {
+        mockThreads[mockThreadIndex].isLocked = !currentStatus;
+    }
     
     toast({ title: "Thread Action", description: `Thread ${!currentStatus ? 'locked' : 'unlocked'}.` });
   };
 
   const handleToggleImportant = (threadId: string, currentStatus: boolean) => {
-    const newThreads = updateThreadInList(threadId, { isImportant: !currentStatus });
-    setThreads(newThreads);
+    setThreads(prevThreads =>
+      prevThreads.map(t =>
+        t.id === threadId ? { ...t, isImportant: !currentStatus } : t
+      )
+    );
     const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
-    if (mockThreadIndex !== -1) mockThreads[mockThreadIndex].isImportant = !currentStatus;
+    if (mockThreadIndex !== -1) {
+        mockThreads[mockThreadIndex].isImportant = !currentStatus;
+    }
 
     toast({ title: "Thread Action", description: `Thread marked as ${!currentStatus ? 'important' : 'not important'}.` });
   };
 
   const handleToggleResolved = (threadId: string, currentStatus: boolean) => {
-    const newThreads = updateThreadInList(threadId, { isResolved: !currentStatus });
-    setThreads(newThreads);
+    setThreads(prevThreads =>
+      prevThreads.map(t =>
+        t.id === threadId ? { ...t, isResolved: !currentStatus } : t
+      )
+    );
     const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
-    if (mockThreadIndex !== -1) mockThreads[mockThreadIndex].isResolved = !currentStatus;
+    if (mockThreadIndex !== -1) {
+        mockThreads[mockThreadIndex].isResolved = !currentStatus;
+    }
 
     toast({ title: "Thread Action", description: `Thread marked as ${!currentStatus ? 'resolved' : 'unresolved'}.` });
   };
 
   const handleDeleteThread = (threadId: string, threadTitle: string) => {
-    const newThreads = threads.filter(t => t.id !== threadId);
-    setThreads(newThreads);
+    setThreads(prevThreads => prevThreads.filter(t => t.id !== threadId));
     
-    // Remove from original mockThreads as well
     const mockThreadIndex = mockThreads.findIndex(t => t.id === threadId);
-    if (mockThreadIndex !== -1) mockThreads.splice(mockThreadIndex, 1);
+    if (mockThreadIndex !== -1) {
+        mockThreads.splice(mockThreadIndex, 1);
+    }
 
     toast({ title: "Thread Deleted", description: `Thread "${threadTitle}" has been deleted.`, variant: "destructive" });
   };
