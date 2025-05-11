@@ -3,13 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Gamepad2, Mail, Instagram, Youtube, MessageSquare as DiscordIcon } from 'lucide-react';
+import { Gamepad2, Mail, Instagram, Youtube, Headphones } from 'lucide-react'; // Changed MessageSquare to Headphones
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 const socialLinks = [
-  { name: 'Discord', href: '#', icon: DiscordIcon },
+  { name: 'Discord', href: '#', icon: Headphones }, // Changed icon to Headphones
   { name: 'Instagram', href: '#', icon: Instagram },
   { name: 'YouTube', href: '#', icon: Youtube },
 ];
